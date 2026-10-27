@@ -1,0 +1,18 @@
+export type Title = {
+  id: string; title: string; type: 'Série' | 'Film'; genre: string; year: number; dur: number;
+  dir: string; diff: string; c: [string, string]; eps: number[]; sum: string;
+};
+
+// Catalogue d'exemple. Dans la version finale, il vient de la base de données (alimentée par TMDB).
+export const CATALOG: Title[] = [
+ {id:'onepiece',title:'One Piece',type:'Série',genre:'Manga',year:1999,dur:24,dir:'Eiichirō Oda',diff:'En cours',c:['#1F4E79','#0D1F36'],eps:[61,16,15,38,13,52,33,35,73,45,26,14,35,60,62,50,118,36,109,197,67],sum:"L'histoire suit les aventures de Monkey D. Luffy, un garçon dont le corps a acquis les propriétés du caoutchouc après avoir mangé par inadvertance un fruit du démon. Avec son équipage de pirates, appelé l'équipage de Chapeau de paille, Luffy explore Grand Line à la recherche du trésor ultime connu sous le nom de « One Piece » afin de devenir le prochain roi des pirates."},
+ {id:'wednesday',title:'Wednesday',type:'Série',genre:'Fantastique',year:2022,dur:53,dir:'Tim Burton, Gandja Monteiro, James Marshall, Paco Cabezas',diff:'En cours',c:['#4A2C6B','#150E22'],eps:[8,8],sum:"Mercredi suit la jeune Mercredi Addams à la Nevermore Academy, où elle tente de s'adapter tout en enquêtant sur une série de meurtres dans la ville voisine."},
+ {id:'you',title:'You',type:'Série',genre:'Thriller',year:2018,dur:50,dir:'Marcos Siega, Silver Tree, Lee Toland Krieger',diff:'Terminée',c:['#5A2A4F','#1A0C17'],eps:[10,10,10,10,10],sum:"Un libraire new-yorkais devient obsédé par une jeune femme et s'immisce dans sa vie."},
+ {id:'goodplace',title:'The Good Place',type:'Série',genre:'Sitcom',year:2016,dur:22,dir:'Michael Schur',diff:'Terminée',c:['#2E6A3F','#0E2315'],eps:[13,13,13,14],sum:"Eleanor Shellstrop se retrouve au paradis par erreur et tente de devenir une meilleure personne pour y rester."},
+ {id:'lucifer',title:'Lucifer',type:'Série',genre:'Fantastique',year:2016,dur:45,dir:'Tom Kapinos',diff:'Terminée',c:['#6B2230','#1F0A10'],eps:[13,18,26,10,16,10],sum:"Lucifer Morningstar, las de l'enfer, ouvre un club à Los Angeles et devient consultant pour la police."},
+ {id:'umbrella',title:'The Umbrella Academy',type:'Série',genre:'Science-fiction',year:2019,dur:52,dir:'Peter Hoar',diff:'Terminée',c:['#7A3B2E','#241013'],eps:[10,10,10,6],sum:"Sept enfants aux pouvoirs extraordinaires, adoptés par un milliardaire, se retrouvent à la mort de leur père pour résoudre un mystère."},
+ {id:'greys',title:"Grey's Anatomy",type:'Série',genre:'Médical',year:2005,dur:43,dir:'Shonda Rhimes',diff:'En cours',c:['#1E5E5A','#0A2423'],eps:[9,27,25,17,24,24,22,24,24,24,25,24,24,24,25,21,17,20,20,10,18,18],sum:"Meredith Grey et ses collègues chirurgiens font leurs armes dans un hôpital de Seattle."},
+ {id:'squid',title:'Squid Game',type:'Série',genre:'Thriller',year:2021,dur:55,dir:'Hwang Dong-hyuk',diff:'Terminée',c:['#8A2A55','#2A0C1B'],eps:[9,7,6],sum:"Des personnes endettées acceptent de participer à des jeux d'enfants mortels pour remporter une énorme somme d'argent."},
+ {id:'breaking',title:'Breaking Bad',type:'Série',genre:'Drame',year:2008,dur:47,dir:'Vince Gilligan',diff:'Terminée',c:['#3F6B2A','#12200C'],eps:[7,13,13,13,16],sum:"Un professeur de chimie atteint d'un cancer se lance dans la fabrication de méthamphétamine pour assurer l'avenir de sa famille."},
+ {id:'stranger',title:'Stranger Things',type:'Série',genre:'Science-fiction',year:2016,dur:50,dir:'Matt Duffer, Ross Duffer',diff:'Terminée',c:['#7A1F2B','#1A0A0D'],eps:[8,9,8,9,8],sum:"À Hawkins, la disparition d'un enfant révèle des expériences secrètes et un monde parallèle."}
+];

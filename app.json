@@ -1,17 +1,21 @@
 {
   "expo": {
-    "name": "app",
-    "slug": "app",
+    "name": "Me and my popcorn",
+    "slug": "me-and-my-popcorn",
+    "scheme": "meandmypopcorn",
     "version": "1.0.0",
     "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#12121C",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.meandmypopcorn.app"
     },
     "android": {
+      "package": "com.meandmypopcorn.app",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#12121C",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
@@ -19,7 +23,15 @@
       "predictiveBackGestureEnabled": false
     },
     "web": {
+      "bundler": "metro",
+      "output": "single",
       "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-router"
+    ],
+    "experiments": {
+      "baseUrl": "/me-and-my-popcorn"
     }
   }
 }
