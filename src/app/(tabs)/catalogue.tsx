@@ -7,17 +7,17 @@ import { CATALOG } from '../../lib/catalog';
 import { useStore } from '../../lib/store';
 import { C } from '../../lib/theme';
 
-const GENRES = Array.from(new Set(CATALOG.map((t) => t.genre))).sort();
 
 export default function Catalogue() {
-  const { state } = useStore();
+  const { state, catalogVersion } = useStore();
+  const GENRES = useMemo(() => Array.from(new Set(CATALOG.map((t) => t.genre))).sort(), [catalogVersion]);
   const [q, setQ] = useState('');
   const [type, setType] = useState('Tous');
   const [genre, setGenre] = useState('Tous');
   const ids = useMemo(() => {
     const k = q.trim().toLowerCase();
     return CATALOG.filter((t) => (type === 'Tous' || `${t.type}s` === type) && (genre === 'Tous' || t.genre === genre) && (!k || t.title.toLowerCase().includes(k))).map((t) => t.id);
-  }, [q, type, genre]);
+  }, [q, type, genre, catalogVersion]);
 
   return (
     <Screen>

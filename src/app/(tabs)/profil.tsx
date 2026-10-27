@@ -9,7 +9,8 @@ import { C } from '../../lib/theme';
 const toggle = (a: string[], v: string) => (a.includes(v) ? a.filter((x) => x !== v) : [...a, v]);
 
 export default function Profil() {
-  const { state, patchPrefs, reset } = useStore();
+  const { state, session, syncError, patchPrefs, clearList, signOut, deleteAccount } = useStore();
+  const [delErr, setDelErr] = useState('');
   const P = state.prefs;
   const [open, setOpen] = useState(false);
   const [np, setNp] = useState('');
@@ -70,17 +71,20 @@ export default function Profil() {
 
       <Card>
         <H2>Compte</H2>
-        <Btn label="Remettre les données de départ" kind="alt" onPress={reset} />
+        {session ? <Mu>Connectée avec {session.user.email}</Mu> : null}
+        {syncError ? <Text style={{ color: C.rose, fontSize: 13 }}>Synchronisation : {syncError}</Text> : null}
+        <Btn label="Vider ma liste" kind="alt" onPress={clearList} />
+        <Btn label="Me déconnecter" kind="alt" onPress={signOut} />
         {del ? (
           <>
             <Text style={{ color: C.tx, lineHeight: 20 }}>Supprimer ton compte efface ta liste, tes notes et tes avis. Cette action est définitive.</Text>
             <View style={{ flexDirection: 'row', gap: 10 }}>
               <View style={{ flex: 1 }}><Btn label="Annuler" kind="alt" onPress={() => setDel(false)} /></View>
-              <View style={{ flex: 1 }}><Btn label="Supprimer" kind="danger" onPress={() => { reset(); setDel(false); }} /></View>
+              <View style={{ flex: 1 }}><Btn label="Supprimer" kind="danger" onPress={async () => { const e = await deleteAccount(); if (e) setDelErr(e); setDel(false); }} /></View>
             </View>
           </>
         ) : <Btn label="Supprimer mon compte" kind="danger" onPress={() => setDel(true)} />}
-        <Mu size={12}>La connexion (Apple, Google, e-mail) sera ajoutée avec la base de données.</Mu>
+        {delErr ? <Text style={{ color: C.rose, fontSize: 13 }}>{delErr}</Text> : null}
       </Card>
     </Screen>
   );

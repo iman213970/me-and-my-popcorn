@@ -8,10 +8,10 @@ Appli de suivi de séries et de films (iOS, Android, web), construite avec Expo 
 - Ma liste : grille d'affiches, tri, filtre
 - Fiche : Mon suivi (avancement, saison/épisode, dates, plateforme, favori) et Mon avis (note /10, avis, citation, personnage, moment)
 - Profil : avatar, pseudo, bio, genres et plateformes préférés (dont plateformes ajoutées à la main)
-- Données gardées sur l'appareil pour l'instant (catalogue d'exemple de 10 titres)
+- Connexion par e-mail et données sauvegardées dans Supabase (tables dans `supabase/schema.sql`, à coller une fois dans le SQL Editor)
 
 ## À venir
-Base de données et connexion (Supabase), catalogue TMDB, amis et profils, recommandations, À venir, récap, séries à plusieurs.
+Connexion Apple et Google, catalogue TMDB, amis et profils, recommandations, À venir, récap, séries à plusieurs.
 
 ## Commandes
 ```bash
