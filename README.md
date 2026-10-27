@@ -22,3 +22,5 @@ npm run typecheck
 ```
 
 Le nom de l'appli est dans `src/config.ts` et `app.json`.
+
+Version web : https://iman213970.github.io/me-and-my-popcorn/
