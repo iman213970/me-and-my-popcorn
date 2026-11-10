@@ -21,6 +21,8 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx expo export -p web
+      # La page est en français : on le dit au navigateur pour qu'il ne la "traduise" pas (ça casse l'appli).
+      - run: sed -i 's#<html lang="en">#<html lang="fr" translate="no">#; s#<head>#<head><meta name="google" content="notranslate" />#' dist/index.html
       - run: cp dist/index.html dist/404.html
       - uses: actions/upload-pages-artifact@v3
         with:
