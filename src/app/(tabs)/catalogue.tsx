@@ -42,10 +42,14 @@ export default function Catalogue() {
 
   const pick = async (h: TmdbHit) => {
     setBusy(`${h.kind}-${h.id}`); setMsg('');
-    const id = await importTmdb(h.kind, h.id);
-    setBusy('');
-    if (!id) { setMsg("Impossible d'ouvrir ce titre pour l'instant."); return; }
-    router.push(`/titre/${id}`);
+    try {
+      const id = await importTmdb(h.kind, h.id);
+      setBusy('');
+      router.push(`/titre/${id}`);
+    } catch (e) {
+      setBusy('');
+      setMsg(`Impossible d'ouvrir ce titre : ${e instanceof Error ? e.message : 'erreur inconnue'}`);
+    }
   };
   const keep = (h: TmdbHit) => type === 'Tous' || (type === 'Séries' ? h.kind === 'tv' : h.kind === 'movie');
 

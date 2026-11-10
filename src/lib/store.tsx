@@ -179,8 +179,13 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   /** Demande à la fonction d'ajouter un titre TMDB au catalogue, puis le rend visible tout de suite. */
   const importTmdb = useCallback(async (kind: 'tv' | 'movie', tmdbId: number): Promise<string> => {
     const { data, error } = await supabase.functions.invoke(TMDB_FUNCTION, { body: { action: 'import', kind, id: tmdbId } });
+    if (error) {
+      let m = error.message;
+      try { const b = await (error as unknown as { context: Response }).context.json(); if (b?.error) m = String(b.error); } catch { /* message par défaut */ }
+      throw new Error(m);
+    }
     const t = (data as { title?: Title } | null)?.title;
-    if (error || !t) return '';
+    if (!t) throw new Error('Réponse vide de la fonction');
     if (BY[t.id]) Object.assign(BY[t.id], t); else { CATALOG.push(t); BY[t.id] = t; }
     setCatalogVersion((v) => v + 1);
     return t.id;
