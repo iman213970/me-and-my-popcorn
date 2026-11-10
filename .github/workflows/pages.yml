@@ -23,6 +23,9 @@ jobs:
       - run: npx expo export -p web
       # La page est en français : on le dit au navigateur pour qu'il ne la "traduise" pas (ça casse l'appli).
       - run: sed -i 's#<html lang="en">#<html lang="fr" translate="no">#; s#<head>#<head><meta name="google" content="notranslate" />#' dist/index.html
+      # Installation sur l'écran d'accueil (iPhone, iPad, Android) : icône, plein écran, couleur de fond.
+      - run: |
+          sed -i 's#</head>#<link rel="manifest" href="/me-and-my-popcorn/manifest.json" /><link rel="apple-touch-icon" href="/me-and-my-popcorn/apple-touch-icon.png" /><meta name="apple-mobile-web-app-capable" content="yes" /><meta name="mobile-web-app-capable" content="yes" /><meta name="apple-mobile-web-app-title" content="Popcorn" /><meta name="apple-mobile-web-app-status-bar-style" content="black" /><meta name="theme-color" content="\#12121C" /><style>html,body{background:\#12121C}</style></head>#' dist/index.html
       - run: cp dist/index.html dist/404.html
       - uses: actions/upload-pages-artifact@v3
         with:
