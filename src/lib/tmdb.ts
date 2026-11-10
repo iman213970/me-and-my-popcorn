@@ -1,3 +1,4 @@
+import { TMDB_FUNCTION } from '../config';
 import { supabase } from './supabase';
 
 export type TmdbHit = { kind: 'tv' | 'movie'; id: number; title: string; year: string; overview: string; poster: string };
@@ -5,7 +6,7 @@ type Res = { hits: TmdbHit[]; error: string };
 const OFF = "La recherche TMDB n'est pas encore activée (fonction ou clé manquante).";
 
 async function call(body: object): Promise<Res> {
-  const { data, error } = await supabase.functions.invoke('tmdb', { body });
+  const { data, error } = await supabase.functions.invoke(TMDB_FUNCTION, { body });
   if (error) return { hits: [], error: OFF };
   return { hits: ((data as { hits?: TmdbHit[] })?.hits ?? []), error: '' };
 }
