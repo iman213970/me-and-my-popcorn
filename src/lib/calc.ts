@@ -29,3 +29,10 @@ export function fmtLong(m: number) {
   const mi = m % 60;
   return d > 0 ? `${d} j ${h} h ${mi} min` : `${h} h ${mi} min`;
 }
+
+/** Durée d'un film : 93 -> "1 h 33 min", 45 -> "45 min", 120 -> "2 h". */
+export function fmtDur(m: number) {
+  const h = Math.floor(m / 60), mi = m % 60;
+  if (h === 0) return `${mi} min`;
+  return mi === 0 ? `${h} h` : `${h} h ${mi < 10 ? '0' : ''}${mi} min`;
+}

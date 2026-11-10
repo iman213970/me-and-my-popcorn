@@ -3,7 +3,7 @@ import React from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { TitleGrid } from '../../components/TitleGrid';
 import { Avatar, Bar, Card, H1, H2, Mu, Poster, Screen } from '../../components/ui';
-import { fmtLong, pos, total } from '../../lib/calc';
+import { fmtDur, fmtLong, pos, total } from '../../lib/calc';
 import { BY, useStore } from '../../lib/store';
 import { C } from '../../lib/theme';
 
@@ -59,13 +59,13 @@ export default function Accueil() {
                 <Poster t={t} w={52} rounded={10} />
                 <View style={{ flex: 1, gap: 6 }}>
                   <Text style={{ color: C.tx, fontSize: 16, fontWeight: '700' }}>{t.title}</Text>
-                  <Mu>Saison {p.s} · épisode {p.e}</Mu>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}><Bar pct={(e.watched / tt) * 100} /><Mu size={12}>{e.watched} / {tt}</Mu></View>
+                  <Mu>{t.type === 'Film' ? `Film · ${fmtDur(t.dur)}` : `Saison ${p.s} · épisode ${p.e}`}</Mu>
+                  {t.type === 'Film' ? null : <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}><Bar pct={(e.watched / tt) * 100} /><Mu size={12}>{e.watched} / {tt}</Mu></View>}
                 </View>
               </Pressable>
-              <Pressable onPress={() => setWatched(id, e.watched + 1)} accessibilityRole="button" accessibilityLabel={`Ajouter un épisode à ${t.title}`}
+              <Pressable onPress={() => setWatched(id, e.watched + 1)} accessibilityRole="button" accessibilityLabel={t.type === 'Film' ? `Marquer ${t.title} comme vu` : `Ajouter un épisode à ${t.title}`}
                 style={{ height: 44, paddingHorizontal: 14, borderRadius: 99, backgroundColor: C.ac, alignItems: 'center', justifyContent: 'center' }}>
-                <Text style={{ color: C.acfg, fontWeight: '700', fontSize: 14 }}>+1 ép.</Text>
+                <Text style={{ color: C.acfg, fontWeight: '700', fontSize: 14 }}>{t.type === 'Film' ? 'Vu' : '+1 ép.'}</Text>
               </Pressable>
             </Card>
           );

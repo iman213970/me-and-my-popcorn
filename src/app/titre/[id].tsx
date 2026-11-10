@@ -6,7 +6,7 @@ import { Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { FeelPicker, Journal } from '../../components/Journal';
 import { Bar, Btn, Card, Chip, Chips, Field, H1, H2, Kv, Mu, Poster, Stepper, Switch } from '../../components/ui';
-import { cum, fmtH, pos, total } from '../../lib/calc';
+import { cum, fmtDur, fmtH, pos, total } from '../../lib/calc';
 import { BY, STATUSES, useStore, type Visibility } from '../../lib/store';
 import { C } from '../../lib/theme';
 import { PLATFORMS } from '../../lib/options';
@@ -19,6 +19,7 @@ export default function Fiche() {
   const t = BY[String(id)];
   if (!t) return <SafeAreaView style={{ flex: 1, backgroundColor: C.bg }}><Text style={{ color: C.tx, padding: 20 }}>Titre introuvable.</Text></SafeAreaView>;
   const e = state.list[t.id];
+  const film = t.type === 'Film';
   const tot = total(t);
   const back = () => (router.canGoBack() ? router.back() : router.replace('/'));
 
@@ -27,10 +28,10 @@ export default function Fiche() {
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
         <Kv label="Genre" value={t.genre} />
         <Kv label="Statut de diffusion" value={t.diff} />
-        <Kv label="Épisodes par saison" value={t.eps.join(', ')} />
-        <Kv label="Durée moyenne" value={`${t.dur} min`} />
+        {film ? null : <Kv label="Épisodes par saison" value={t.eps.join(', ')} />}
+        <Kv label={film ? 'Durée' : 'Durée moyenne'} value={film ? fmtDur(t.dur) : `${t.dur} min`} />
         <Kv label="Année de production" value={t.year} />
-        <Kv label="Saisons" value={t.eps.length} />
+        {film ? null : <Kv label="Saisons" value={t.eps.length} />}
         <Kv label="Réalisateurs" value={t.dir} span />
       </View>
       <View style={{ gap: 8 }}><H2>Résumé</H2><Text style={{ color: C.soft, fontSize: 15, lineHeight: 22 }}>{t.sum}</Text></View>
@@ -56,7 +57,7 @@ export default function Fiche() {
               <H1>{t.title}</H1>
               {e ? <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#12312E', borderRadius: 99, paddingHorizontal: 10, paddingVertical: 3 }}><Ionicons name="checkmark" size={12} color={C.mint} /><Text style={{ color: C.mint, fontSize: 12, fontWeight: '700' }}>Dans ma liste</Text></View> : null}
             </View>
-            <Mu size={14}>{t.type} · {t.year} · {t.eps.length} saison{t.eps.length > 1 ? 's' : ''} · {t.dur} min</Mu>
+            <Mu size={14}>{film ? `Film · ${t.year} · ${fmtDur(t.dur)}` : `${t.type} · ${t.year} · ${t.eps.length} saison${t.eps.length > 1 ? 's' : ''} · ${t.dur} min`}</Mu>
           </View>
 
           {!e ? (
@@ -80,23 +81,30 @@ export default function Fiche() {
                     <Mu size={12}>Avancement</Mu>
                     <Chips>{STATUSES.map((s) => <Chip key={s} label={s} on={e.status === s} onPress={() => (s === 'Terminé' ? setWatched(t.id, tot) : patch(t.id, { status: s }))} />)}</Chips>
                   </View>
+                  {film ? (
+                    <Btn label={e.watched >= 1 ? 'Marquer comme pas vu' : 'Marquer comme vu'} kind={e.watched >= 1 ? 'alt' : 'main'} icon={e.watched >= 1 ? undefined : 'checkmark'}
+                      onPress={() => setWatched(t.id, e.watched >= 1 ? 0 : 1)} />
+                  ) : (
+                    <>
                   <View style={{ gap: 6 }}>
-                    <Mu size={12}>Progression</Mu>
-                    <View style={{ flexDirection: 'row', gap: 10 }}>
-                      <Stepper label="Saison" value={p.s}
-                        onMinus={() => { const s = Math.max(1, p.s - 1); setWatched(t.id, cum(t, s - 1) + Math.min(p.e, t.eps[s - 1])); }}
-                        onPlus={() => { const s = Math.min(t.eps.length, p.s + 1); setWatched(t.id, cum(t, s - 1) + Math.min(p.e, t.eps[s - 1])); }} />
-                      <Stepper label="Épisode" value={p.e}
-                        onMinus={() => setWatched(t.id, cum(t, p.s - 1) + Math.max(0, p.e - 1))}
-                        onPlus={() => setWatched(t.id, cum(t, p.s - 1) + Math.min(t.eps[p.s - 1], p.e + 1))} />
-                    </View>
-                  </View>
-                  <Btn label="+1 épisode" onPress={() => setWatched(t.id, e.watched + 1)} />
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}><Bar pct={(e.watched / tot) * 100} /><Mu size={12}>{e.watched} sur {tot}</Mu></View>
+                        <Mu size={12}>Progression</Mu>
+                        <View style={{ flexDirection: 'row', gap: 10 }}>
+                          <Stepper label="Saison" value={p.s}
+                            onMinus={() => { const s = Math.max(1, p.s - 1); setWatched(t.id, cum(t, s - 1) + Math.min(p.e, t.eps[s - 1])); }}
+                            onPlus={() => { const s = Math.min(t.eps.length, p.s + 1); setWatched(t.id, cum(t, s - 1) + Math.min(p.e, t.eps[s - 1])); }} />
+                          <Stepper label="Épisode" value={p.e}
+                            onMinus={() => setWatched(t.id, cum(t, p.s - 1) + Math.max(0, p.e - 1))}
+                            onPlus={() => setWatched(t.id, cum(t, p.s - 1) + Math.min(t.eps[p.s - 1], p.e + 1))} />
+                        </View>
+                      </View>
+                      <Btn label="+1 épisode" onPress={() => setWatched(t.id, e.watched + 1)} />
+                      {film ? null : <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}><Bar pct={(e.watched / tot) * 100} /><Mu size={12}>{e.watched} sur {tot}</Mu></View>}
+                    </>
+                  )}
                   <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
                     <Kv third label="Total" value={fmtH(totMin)} /><Kv third label="Regardé" value={fmtH(seen)} /><Kv third label="Restant" value={fmtH(totMin - seen)} />
                   </View>
-                  <Mu size={12}>Total = {tot} épisodes × {t.dur} min. Regardé = {e.watched} × {t.dur} min.</Mu>
+                  <Mu size={12}>{film ? `Durée du film : ${t.dur} min.` : `Total = ${tot} épisodes × ${t.dur} min. Regardé = ${e.watched} × ${t.dur} min.`}</Mu>
                   <View style={{ flexDirection: 'row', gap: 10 }}>
                     <View style={{ flex: 1 }}><Field label="Date de début" value={e.start} onChangeText={(v) => patch(t.id, { start: v })} placeholder="jj/mm/aaaa" /></View>
                     <View style={{ flex: 1 }}><Field label="Date de fin" value={e.end} onChangeText={(v) => patch(t.id, { end: v })} placeholder="jj/mm/aaaa" /></View>
