@@ -1,9 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, TextInput, View, type StyleProp, type TextInputProps, type ViewStyle } from 'react-native';
+import { Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View, type StyleProp, type TextInputProps, type ViewStyle } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { Title } from '../lib/catalog';
+import { posterUrl } from '../lib/tmdb';
 import { C, STATUS_COLORS } from '../lib/theme';
 
 /** Écran avec défilement, largeur limitée sur grand écran (iPad, web). */
@@ -31,6 +32,7 @@ export function Poster({ t, w, rounded = 12 }: { t: Title; w?: number; rounded?:
       style={{ aspectRatio: 2 / 3, width: w ?? '100%', borderRadius: rounded, alignItems: 'center', justifyContent: 'center' }}
       accessibilityLabel={`Affiche de ${t.title}`}>
       <Text style={{ color: 'rgba(255,255,255,0.3)', fontWeight: '700', fontSize: w ? w * 0.4 : 40 }}>{t.title.charAt(0)}</Text>
+      {t.poster ? <Image source={{ uri: posterUrl(t.poster, w && w > 120 ? 'w500' : 'w342') }} resizeMode="cover" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, borderRadius: rounded }} /> : null}
     </LinearGradient>
   );
 }

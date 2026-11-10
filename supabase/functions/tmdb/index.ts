@@ -58,7 +58,7 @@ async function build(kind: 'tv' | 'movie', tmdbId: number) {
     return {
       id, title: d.name, type: 'Série', genre: genreOf(d), year: Number((d.first_air_date ?? '').slice(0, 4)) || 0, dur,
       dir: (d.created_by ?? []).map((p: { name: string }) => p.name).join(', ') || 'Non renseigné', diff, c: colors(id),
-      eps: eps.length ? eps : [d.number_of_episodes || 1], sum: d.overview || 'Résumé non disponible.',
+      eps: eps.length ? eps : [d.number_of_episodes || 1], sum: d.overview || 'Résumé non disponible.', poster: d.poster_path ?? '',
     };
   }
   const d = await tmdb(`/movie/${tmdbId}`, { append_to_response: 'credits' });
@@ -66,7 +66,7 @@ async function build(kind: 'tv' | 'movie', tmdbId: number) {
   return {
     id, title: d.title, type: 'Film', genre: genreOf(d), year: Number((d.release_date ?? '').slice(0, 4)) || 0, dur: d.runtime || 100,
     dir: dirs.join(', ') || 'Non renseigné', diff: d.belongs_to_collection ? 'Saga' : 'Film unique', c: colors(id),
-    eps: [1], sum: d.overview || 'Résumé non disponible.',
+    eps: [1], sum: d.overview || 'Résumé non disponible.', poster: d.poster_path ?? '',
   };
 }
 
@@ -82,14 +82,19 @@ Deno.serve(async (req) => {
     if (only && user.email?.toLowerCase() !== only.toLowerCase()) return json({ error: 'Accès refusé' }, 403);
 
     const body = await req.json();
-    if (body.action === 'search') {
-      const q = String(body.q ?? '').trim().slice(0, 80);
-      if (q.length < 2) return json({ hits: [] });
-      const r = await tmdb('/search/multi', { query: q, include_adult: 'false' });
-      const hits = (r.results ?? []).filter((x: { media_type: string }) => x.media_type === 'tv' || x.media_type === 'movie').slice(0, 12)
-        .map((x: { media_type: string; id: number; title?: string; name?: string; release_date?: string; first_air_date?: string; overview?: string }) => ({
+    if (body.action === 'search' || body.action === 'browse') {
+      let r;
+      if (body.action === 'search') {
+        const q = String(body.q ?? '').trim().slice(0, 80);
+        if (q.length < 2) return json({ hits: [] });
+        r = await tmdb('/search/multi', { query: q, include_adult: 'false' });
+      } else {
+        r = await tmdb('/trending/all/week');
+      }
+      const hits = (r.results ?? []).filter((x: { media_type: string }) => x.media_type === 'tv' || x.media_type === 'movie').slice(0, 18)
+        .map((x: { media_type: string; id: number; title?: string; name?: string; release_date?: string; first_air_date?: string; overview?: string; poster_path?: string }) => ({
           kind: x.media_type, id: x.id, title: x.title ?? x.name ?? '', year: (x.release_date ?? x.first_air_date ?? '').slice(0, 4),
-          overview: (x.overview ?? '').slice(0, 160),
+          overview: (x.overview ?? '').slice(0, 160), poster: x.poster_path ?? '',
         }));
       return json({ hits });
     }

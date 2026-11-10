@@ -1,6 +1,6 @@
 export type Title = {
   id: string; title: string; type: 'Série' | 'Film'; genre: string; year: number; dur: number;
-  dir: string; diff: string; c: [string, string]; eps: number[]; sum: string;
+  dir: string; diff: string; c: [string, string]; eps: number[]; sum: string; poster?: string;
 };
 
 // Catalogue d'exemple. Dans la version finale, il vient de la base de données (alimentée par TMDB).
