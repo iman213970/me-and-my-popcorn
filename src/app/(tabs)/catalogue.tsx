@@ -53,7 +53,7 @@ export default function Catalogue() {
   };
   const keep = (h: TmdbHit) => type === 'Tous' || (type === 'Séries' ? h.kind === 'tv' : h.kind === 'movie');
 
-  const ids = useMemo(() => CATALOG.filter((t) => (type === 'Tous' || `${t.type}s` === type) && (genre === 'Tous' || t.genre === genre)).map((t) => t.id), [type, genre, catalogVersion]);
+  const ids = useMemo(() => CATALOG.filter((t) => (!!t.poster || !!state.list[t.id]) && (type === 'Tous' || `${t.type}s` === type) && (genre === 'Tous' || t.genre === genre)).map((t) => t.id), [type, genre, catalogVersion, state.list]);
 
   const grid = (list: TmdbHit[]) => (
     <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 16, columnGap: 10 }}>

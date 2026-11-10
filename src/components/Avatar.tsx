@@ -42,14 +42,22 @@ export function AvatarArt({ spec }: { spec: AvatarSpec }) {
       {h === 3 ? <Rect x={17} y={38} width={66} height={42} rx={17} fill={hair} {...line} /> : null}
       {h === 4 ? <Circle cx={50} cy={19} r={12} fill={hair} {...line} /> : null}
       {h === 5 ? (<G><Circle cx={17} cy={38} r={12} fill={hair} {...line} /><Circle cx={83} cy={38} r={12} fill={hair} {...line} /></G>) : null}
-      {hijab ? <Ellipse cx={50} cy={60} rx={37} ry={40} fill={hair} {...line} /> : null}
+      {hijab ? (<G>
+        <Path d="M50 16 Q13 16 13 60 Q13 84 22 104 L78 104 Q87 84 87 60 Q87 16 50 16Z" fill={hair} {...line} />
+        <Path d="M24 84 Q30 98 44 103" fill="none" stroke="#fff" strokeWidth={2} strokeLinecap="round" opacity={0.28} />
+        <Path d="M76 84 Q70 98 56 103" fill="none" stroke="#fff" strokeWidth={2} strokeLinecap="round" opacity={0.28} />
+        <Path d="M30 30 Q50 20 70 30" fill="none" stroke="#fff" strokeWidth={2} strokeLinecap="round" opacity={0.28} />
+      </G>) : null}
       {/* oreilles */}
       {hijab ? null : (<G>
         <Circle cx={20} cy={60} r={7} fill={skin} {...line} />
         <Circle cx={80} cy={60} r={7} fill={skin} {...line} />
       </G>)}
       {/* tête */}
-      <Circle cx={50} cy={58} r={hijab ? 25 : 30} fill={skin} {...line} />
+      {hijab ? (<G>
+        <Ellipse cx={50} cy={60} rx={27} ry={30} fill={skin} {...line} />
+        <Ellipse cx={50} cy={60} rx={30} ry={33} fill="none" stroke="#fff" strokeWidth={1.6} opacity={0.3} />
+      </G>) : <Circle cx={50} cy={58} r={30} fill={skin} {...line} />}
       {/* devant des cheveux */}
       {h === 0 ? <Path d={cap} fill={hair} {...line} /> : null}
       {h === 1 ? (<G>
@@ -73,11 +81,11 @@ export function AvatarArt({ spec }: { spec: AvatarSpec }) {
         <Circle cx={50} cy={14} r={6} fill={shirt} {...line} />
       </G>) : null}
       {/* visage */}
-      <Circle cx={hijab ? 41 : 39} cy={60} r={2.8} fill={INK} />
-      <Circle cx={hijab ? 59 : 61} cy={60} r={2.8} fill={INK} />
+      <Circle cx={hijab ? 42 : 39} cy={60} r={2.8} fill={INK} />
+      <Circle cx={hijab ? 58 : 61} cy={60} r={2.8} fill={INK} />
       <Path d="M45 67 Q50 71.5 55 67" fill="none" stroke={INK} strokeWidth={2.2} strokeLinecap="round" />
-      <Ellipse cx={hijab ? 35 : 31} cy={67} rx={6} ry={3.6} fill="#F27A7A" opacity={0.85} />
-      <Ellipse cx={hijab ? 65 : 69} cy={67} rx={6} ry={3.6} fill="#F27A7A" opacity={0.85} />
+      <Ellipse cx={hijab ? 37 : 31} cy={68} rx={5.5} ry={3.6} fill="#F27A7A" opacity={0.85} />
+      <Ellipse cx={hijab ? 63 : 69} cy={68} rx={5.5} ry={3.6} fill="#F27A7A" opacity={0.85} />
     </Svg>
   );
 }
