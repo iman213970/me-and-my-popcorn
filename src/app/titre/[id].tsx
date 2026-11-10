@@ -4,7 +4,8 @@ import { router, useLocalSearchParams } from 'expo-router';
 import React, { useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Bar, Btn, Card, Chip, Chips, Field, H1, H2, Kv, Mu, Poster, Switch } from '../../components/ui';
+import { FeelPicker, Journal } from '../../components/Journal';
+import { Bar, Btn, Card, Chip, Chips, Field, H1, H2, Kv, Mu, Poster, Stepper, Switch } from '../../components/ui';
 import { cum, fmtH, pos, total } from '../../lib/calc';
 import { BY, STATUSES, useStore, type Visibility } from '../../lib/store';
 import { C } from '../../lib/theme';
@@ -138,6 +139,10 @@ export default function Fiche() {
                     </View>
                   </View>
                   <View style={{ gap: 6 }}>
+                    <Mu size={12}>Mon ressenti (autant que tu veux)</Mu>
+                    <FeelPicker value={e.feel} onChange={(v) => patch(t.id, { feel: v })} />
+                  </View>
+                  <View style={{ gap: 6 }}>
                     <Mu size={12}>Qui voit mon avis</Mu>
                     <Chips>{(['Moi', 'Amis', 'Public'] as Visibility[]).map((v) => <Chip key={v} label={v} on={e.vis === v} onPress={() => patch(t.id, { vis: v })} />)}</Chips>
                   </View>
@@ -145,6 +150,13 @@ export default function Fiche() {
                   <Field label="Citation préférée" value={e.cit} onChangeText={(v) => patch(t.id, { cit: v })} placeholder="Ta citation préférée" />
                   <Field label="Personnage préféré" value={e.perso} onChangeText={(v) => patch(t.id, { perso: v })} placeholder="Ton personnage préféré" />
                   <Field label="Moment préféré" value={e.moment} onChangeText={(v) => patch(t.id, { moment: v })} placeholder="Ton moment préféré" />
+                </Card>
+
+                <Card>
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                    <H2>{t.type === 'Film' ? 'Mes commentaires' : 'Mes commentaires par épisode'}</H2><Tag label="privé" />
+                  </View>
+                  <Journal t={t} watched={e.watched} />
                 </Card>
 
                 {confirm ? (
@@ -173,13 +185,4 @@ export default function Fiche() {
 
 function Tag({ label }: { label: string }) {
   return <View style={{ borderWidth: 1, borderColor: '#3A3A55', borderRadius: 99, paddingHorizontal: 8, paddingVertical: 2 }}><Text style={{ color: C.mu, fontSize: 11 }}>{label}</Text></View>;
-}
-function Stepper({ label, value, onMinus, onPlus }: { label: string; value: number; onMinus: () => void; onPlus: () => void }) {
-  return (
-    <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: C.sf2, borderRadius: 14, padding: 4 }}>
-      <Pressable onPress={onMinus} accessibilityRole="button" accessibilityLabel={`${label} précédente`} style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}><Ionicons name="remove" size={20} color={C.tx} /></Pressable>
-      <View style={{ alignItems: 'center' }}><Text style={{ color: C.mu, fontSize: 11 }}>{label}</Text><Text style={{ color: C.tx, fontSize: 18, fontWeight: '700' }}>{value}</Text></View>
-      <Pressable onPress={onPlus} accessibilityRole="button" accessibilityLabel={`${label} suivante`} style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}><Ionicons name="add" size={20} color={C.tx} /></Pressable>
-    </View>
-  );
 }

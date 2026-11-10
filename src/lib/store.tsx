@@ -10,8 +10,9 @@ export type Visibility = 'Moi' | 'Amis' | 'Public';
 
 export type Entry = {
   status: Status; watched: number; start: string; end: string; plat: string; fav: boolean;
-  note: number; avis: string; cit: string; perso: string; moment: string; vis: Visibility;
+  note: number; avis: string; cit: string; perso: string; moment: string; vis: Visibility; feel: string[];
 };
+export type Note = { id: string; title_id: string; season: number; episode: number; body: string; feel: string[]; created_at: string };
 export type Prefs = {
   avatar: number; pseudo: string; bio: string; pub: boolean;
   genres: string[]; plats: string[]; customPlats: string[];
@@ -29,15 +30,15 @@ function setCatalog(rows: Title[]) {
 
 export const newEntry = (o: Partial<Entry> = {}): Entry => ({
   status: 'À regarder', watched: 0, start: '', end: '', plat: '', fav: false,
-  note: 0, avis: '', cit: '', perso: '', moment: '', vis: 'Amis', ...o,
+  note: 0, avis: '', cit: '', perso: '', moment: '', vis: 'Amis', feel: [], ...o,
 });
 const freshPrefs = (): Prefs => ({ avatar: 0, pseudo: '', bio: '', pub: true, genres: ['Thriller', 'Manga'], plats: ['Netflix'], customPlats: [] });
 const fresh = (): State => ({ list: {}, prefs: freshPrefs() });
 
 /* ---- Conversions base de données <-> appli ---- */
-type EntryRow = { title_id: string; status: Status; watched: number; start_date: string; end_date: string; plat: string; fav: boolean; note: number; avis: string; cit: string; perso: string; moment: string; vis: Visibility };
-const fromRow = (r: EntryRow): Entry => ({ status: r.status, watched: r.watched, start: r.start_date, end: r.end_date, plat: r.plat, fav: r.fav, note: r.note, avis: r.avis, cit: r.cit, perso: r.perso, moment: r.moment, vis: r.vis });
-const toRow = (uid: string, id: string, e: Entry) => ({ user_id: uid, title_id: id, status: e.status, watched: e.watched, start_date: e.start, end_date: e.end, plat: e.plat, fav: e.fav, note: e.note, avis: e.avis, cit: e.cit, perso: e.perso, moment: e.moment, vis: e.vis });
+type EntryRow = { title_id: string; status: Status; watched: number; start_date: string; end_date: string; plat: string; fav: boolean; note: number; avis: string; cit: string; perso: string; moment: string; vis: Visibility; ressenti: string[] | null };
+const fromRow = (r: EntryRow): Entry => ({ status: r.status, watched: r.watched, start: r.start_date, end: r.end_date, plat: r.plat, fav: r.fav, note: r.note, avis: r.avis, cit: r.cit, perso: r.perso, moment: r.moment, vis: r.vis, feel: r.ressenti ?? [] });
+const toRow = (uid: string, id: string, e: Entry) => ({ user_id: uid, title_id: id, status: e.status, watched: e.watched, start_date: e.start, end_date: e.end, plat: e.plat, fav: e.fav, note: e.note, avis: e.avis, cit: e.cit, perso: e.perso, moment: e.moment, vis: e.vis, ressenti: e.feel });
 type ProfileRow = { pseudo: string; bio: string; pub: boolean; avatar: number; genres: string[]; plats: string[]; custom_plats: string[] };
 const prefsFromRow = (r: ProfileRow): Prefs => ({ pseudo: r.pseudo, bio: r.bio, pub: r.pub, avatar: r.avatar, genres: r.genres, plats: r.plats, customPlats: r.custom_plats });
 const prefsToRow = (uid: string, p: Prefs) => ({ id: uid, pseudo: p.pseudo, bio: p.bio, pub: p.pub, avatar: p.avatar, genres: p.genres, plats: p.plats, custom_plats: p.customPlats });
@@ -48,6 +49,10 @@ type Ctx = {
   patch: (id: string, p: Partial<Entry>) => void;
   setWatched: (id: string, w: number) => void;
   patchPrefs: (p: Partial<Prefs>) => void;
+  notes: Note[];
+  addNote: (titleId: string, season: number, episode: number, body: string, feel: string[]) => Promise<void>;
+  updateNote: (id: string, body: string, feel: string[]) => Promise<void>;
+  removeNote: (id: string) => Promise<void>;
   clearList: () => Promise<void>;
   signOut: () => Promise<void>;
   deleteAccount: () => Promise<string | null>;
@@ -60,6 +65,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [ready, setReady] = useState(false);
   const [syncError, setSyncError] = useState('');
   const [catalogVersion, setCatalogVersion] = useState(0);
+  const [notes, setNotes] = useState<Note[]>([]);
   const ref = useRef<State>(state);
   const uid = useRef<string | null>(null);
   const timers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
@@ -92,10 +98,11 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
   /** Charge catalogue, liste et profil depuis la base. */
   const loadAll = useCallback(async (u: string) => {
-    const [t, e, p] = await Promise.all([
+    const [t, e, p, n] = await Promise.all([
       supabase.from('titles').select('*').order('title'),
       supabase.from('entries').select('*').eq('user_id', u),
       supabase.from('profiles').select('*').eq('id', u).maybeSingle(),
+      supabase.from('episode_notes').select('*').eq('user_id', u).order('created_at'),
     ]);
     if (t.error) throw t.error;
     if (e.error) throw e.error;
@@ -107,7 +114,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     if (p.data) prefs = prefsFromRow(p.data as ProfileRow);
     else await supabase.from('profiles').upsert(prefsToRow(u, prefs));
     commit({ list, prefs });
-    setSyncError('');
+    // Les commentaires ne bloquent rien : si la table n'existe pas encore, on le signale seulement.
+    if (n.error) { setNotes([]); setSyncError(n.error.message); } else { setNotes(n.data as Note[]); setSyncError(''); }
   }, [commit]);
 
   useEffect(() => {
@@ -116,7 +124,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       if (!alive) return;
       setSession(s);
       uid.current = s?.user.id ?? null;
-      if (s) { try { await loadAll(s.user.id); } catch (e) { fail(e); } } else commit(fresh());
+      if (s) { try { await loadAll(s.user.id); } catch (e) { fail(e); } } else { commit(fresh()); setNotes([]); }
       if (alive) setReady(true);
     };
     supabase.auth.getSession().then(({ data }) => apply(data.session)).catch(() => { setReady(true); });
@@ -137,7 +145,11 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     commit({ ...ref.current, list: l });
     clearTimeout(timers.current['e:' + id]);
     const u = uid.current;
-    if (u) supabase.from('entries').delete().eq('user_id', u).eq('title_id', id).then(({ error }) => { if (error) fail(error); });
+    setNotes((l) => l.filter((x) => x.title_id !== id));
+    if (u) {
+      supabase.from('entries').delete().eq('user_id', u).eq('title_id', id).then(({ error }) => { if (error) fail(error); });
+      supabase.from('episode_notes').delete().eq('user_id', u).eq('title_id', id).then(({ error }) => { if (error) fail(error); });
+    }
   }, [commit, fail]);
 
   const patch = useCallback((id: string, p: Partial<Entry>) => {
@@ -162,11 +174,32 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     pushPrefs();
   }, [commit, pushPrefs]);
 
+  const addNote = useCallback(async (titleId: string, season: number, episode: number, body: string, feel: string[]) => {
+    const u = uid.current; if (!u) return;
+    const { data, error } = await supabase.from('episode_notes').insert({ user_id: u, title_id: titleId, season, episode, body, feel }).select().single();
+    if (error) { fail(error); return; }
+    setNotes((l) => [...l, data as Note]); setSyncError('');
+  }, [fail]);
+
+  const updateNote = useCallback(async (id: string, body: string, feel: string[]) => {
+    const { data, error } = await supabase.from('episode_notes').update({ body, feel }).eq('id', id).select().single();
+    if (error) { fail(error); return; }
+    setNotes((l) => l.map((x) => (x.id === id ? (data as Note) : x))); setSyncError('');
+  }, [fail]);
+
+  const removeNote = useCallback(async (id: string) => {
+    const { error } = await supabase.from('episode_notes').delete().eq('id', id);
+    if (error) { fail(error); return; }
+    setNotes((l) => l.filter((x) => x.id !== id)); setSyncError('');
+  }, [fail]);
+
   const clearList = useCallback(async () => {
     const u = uid.current; if (!u) return;
     Object.values(timers.current).forEach(clearTimeout);
     const { error } = await supabase.from('entries').delete().eq('user_id', u);
     if (error) { fail(error); return; }
+    await supabase.from('episode_notes').delete().eq('user_id', u);
+    setNotes([]);
     commit({ ...ref.current, list: {} });
   }, [commit, fail]);
 
@@ -179,8 +212,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     return null;
   }, []);
 
-  const value = useMemo(() => ({ ready, session, syncError, catalogVersion, state, add, remove, patch, setWatched, patchPrefs, clearList, signOut, deleteAccount }),
-    [ready, session, syncError, catalogVersion, state, add, remove, patch, setWatched, patchPrefs, clearList, signOut, deleteAccount]);
+  const value = useMemo(() => ({ ready, session, syncError, catalogVersion, state, add, remove, patch, setWatched, patchPrefs, notes, addNote, updateNote, removeNote, clearList, signOut, deleteAccount }),
+    [ready, session, syncError, catalogVersion, state, add, remove, patch, setWatched, patchPrefs, notes, addNote, updateNote, removeNote, clearList, signOut, deleteAccount]);
   return <StoreCtx.Provider value={value}>{children}</StoreCtx.Provider>;
 }
 export function useStore() {

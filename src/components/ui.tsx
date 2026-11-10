@@ -136,3 +136,13 @@ const s = StyleSheet.create({
   seg: { flexDirection: 'row', backgroundColor: C.sf, borderRadius: 14, padding: 4, gap: 4 },
   segBtn: { flex: 1, height: 40, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
 });
+
+export function Stepper({ label, value, onMinus, onPlus }: { label: string; value: number; onMinus: () => void; onPlus: () => void }) {
+  return (
+    <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: C.sf2, borderRadius: 14, padding: 4 }}>
+      <Pressable onPress={onMinus} accessibilityRole="button" accessibilityLabel={`${label} précédente`} style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}><Ionicons name="remove" size={20} color={C.tx} /></Pressable>
+      <View style={{ alignItems: 'center' }}><Text style={{ color: C.mu, fontSize: 11 }}>{label}</Text><Text style={{ color: C.tx, fontSize: 18, fontWeight: '700' }}>{value}</Text></View>
+      <Pressable onPress={onPlus} accessibilityRole="button" accessibilityLabel={`${label} suivante`} style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}><Ionicons name="add" size={20} color={C.tx} /></Pressable>
+    </View>
+  );
+}

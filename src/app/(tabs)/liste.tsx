@@ -48,10 +48,17 @@ export default function MaListe() {
               </View>
             );
           }}
-          badge={(id) => state.list[id].fav ? (
-            <View accessibilityLabel="Favori" style={{ position: 'absolute', top: 6, right: 6, width: 24, height: 24, borderRadius: 12, backgroundColor: C.gold, alignItems: 'center', justifyContent: 'center' }}>
-              <Ionicons name="star" size={14} color={C.acfg} />
-            </View>) : null}
+          badge={(id) => (
+            <>
+              {state.list[id].fav ? (
+                <View accessibilityLabel="Favori" style={{ position: 'absolute', top: 6, right: 6, width: 24, height: 24, borderRadius: 12, backgroundColor: C.gold, alignItems: 'center', justifyContent: 'center' }}>
+                  <Ionicons name="star" size={14} color={C.acfg} />
+                </View>) : null}
+              {state.list[id].feel.length ? (
+                <View accessibilityLabel="Mon ressenti" style={{ position: 'absolute', left: 6, bottom: 6, flexDirection: 'row', backgroundColor: 'rgba(18,18,28,0.72)', borderRadius: 99, paddingHorizontal: 6, paddingVertical: 2 }}>
+                  <Text style={{ fontSize: 13 }}>{state.list[id].feel.slice(0, 3).join('')}</Text>
+                </View>) : null}
+            </>)}
           extra={(id) => <><Text numberOfLines={1} style={{ color: C.mu, fontSize: 12 }}>{BY[id].genre}</Text><Pill status={state.list[id].status} /></>} />
       ) : <Text style={{ color: C.mu, textAlign: 'center', padding: 20 }}>Aucun titre ne correspond. Ajoute-en depuis le catalogue.</Text>}
     </Screen>
