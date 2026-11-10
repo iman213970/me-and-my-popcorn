@@ -70,6 +70,12 @@ export default function Profil() {
       </Card>
 
       <Card>
+        <H2>À propos</H2>
+        <Mu>This product uses the TMDB API but is not endorsed or certified by TMDB.</Mu>
+        <Mu size={12}>Les fiches des films et séries ajoutées depuis la recherche viennent de TMDB.</Mu>
+      </Card>
+
+      <Card>
         <H2>Compte</H2>
         {session ? <Mu>Connectée avec {session.user.email}</Mu> : null}
         {syncError ? <Text style={{ color: C.rose, fontSize: 13 }}>Synchronisation : {syncError}</Text> : null}

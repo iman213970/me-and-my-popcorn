@@ -49,6 +49,7 @@ type Ctx = {
   patch: (id: string, p: Partial<Entry>) => void;
   setWatched: (id: string, w: number) => void;
   patchPrefs: (p: Partial<Prefs>) => void;
+  importTmdb: (kind: 'tv' | 'movie', tmdbId: number) => Promise<string>;
   notes: Note[];
   addNote: (titleId: string, season: number, episode: number, body: string, feel: string[]) => Promise<void>;
   updateNote: (id: string, body: string, feel: string[]) => Promise<void>;
@@ -174,6 +175,16 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     pushPrefs();
   }, [commit, pushPrefs]);
 
+  /** Demande à la fonction d'ajouter un titre TMDB au catalogue, puis le rend visible tout de suite. */
+  const importTmdb = useCallback(async (kind: 'tv' | 'movie', tmdbId: number): Promise<string> => {
+    const { data, error } = await supabase.functions.invoke('tmdb', { body: { action: 'import', kind, id: tmdbId } });
+    const t = (data as { title?: Title } | null)?.title;
+    if (error || !t) return '';
+    if (BY[t.id]) Object.assign(BY[t.id], t); else { CATALOG.push(t); BY[t.id] = t; }
+    setCatalogVersion((v) => v + 1);
+    return t.id;
+  }, []);
+
   const addNote = useCallback(async (titleId: string, season: number, episode: number, body: string, feel: string[]) => {
     const u = uid.current; if (!u) return;
     const { data, error } = await supabase.from('episode_notes').insert({ user_id: u, title_id: titleId, season, episode, body, feel }).select().single();
@@ -212,8 +223,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     return null;
   }, []);
 
-  const value = useMemo(() => ({ ready, session, syncError, catalogVersion, state, add, remove, patch, setWatched, patchPrefs, notes, addNote, updateNote, removeNote, clearList, signOut, deleteAccount }),
-    [ready, session, syncError, catalogVersion, state, add, remove, patch, setWatched, patchPrefs, notes, addNote, updateNote, removeNote, clearList, signOut, deleteAccount]);
+  const value = useMemo(() => ({ ready, session, syncError, catalogVersion, state, add, remove, patch, setWatched, patchPrefs, importTmdb, notes, addNote, updateNote, removeNote, clearList, signOut, deleteAccount }),
+    [ready, session, syncError, catalogVersion, state, add, remove, patch, setWatched, patchPrefs, importTmdb, notes, addNote, updateNote, removeNote, clearList, signOut, deleteAccount]);
   return <StoreCtx.Provider value={value}>{children}</StoreCtx.Provider>;
 }
 export function useStore() {
