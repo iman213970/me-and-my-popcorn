@@ -35,13 +35,13 @@ export function AvatarArt({ spec }: { spec: AvatarSpec }) {
   const hijab = h === 7;
   return (
     <Svg viewBox="0 0 100 106" width="100%" height="100%">
-      {/* haut du corps */}
-      <Rect x={22} y={88} width={56} height={40} rx={16} fill={shirt} {...line} />
       {/* arrière des cheveux */}
       {h === 2 || h === 6 ? <Rect x={16} y={38} width={68} height={60} rx={22} fill={hair} {...line} /> : null}
       {h === 3 ? <Rect x={17} y={38} width={66} height={42} rx={17} fill={hair} {...line} /> : null}
       {h === 4 ? <Circle cx={50} cy={19} r={12} fill={hair} {...line} /> : null}
       {h === 5 ? (<G><Circle cx={17} cy={38} r={12} fill={hair} {...line} /><Circle cx={83} cy={38} r={12} fill={hair} {...line} /></G>) : null}
+      {/* haut du corps */}
+      <Rect x={22} y={88} width={56} height={40} rx={16} fill={shirt} {...line} />
       {hijab ? (<G>
         <Path d="M50 16 Q13 16 13 60 Q13 84 22 104 L78 104 Q87 84 87 60 Q87 16 50 16Z" fill={hair} {...line} />
         <Path d="M24 84 Q30 98 44 103" fill="none" stroke="#fff" strokeWidth={2} strokeLinecap="round" opacity={0.28} />
