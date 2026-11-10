@@ -15,6 +15,7 @@ export default function TabsLayout() {
       <Tabs.Screen name="index" options={{ title: 'Accueil', tabBarIcon: icon('home-outline') }} />
       <Tabs.Screen name="catalogue" options={{ title: 'Catalogue', tabBarIcon: icon('search-outline') }} />
       <Tabs.Screen name="liste" options={{ title: 'Ma liste', tabBarIcon: icon('bookmark-outline') }} />
+      <Tabs.Screen name="amis" options={{ title: 'Proches', tabBarIcon: icon('people-outline') }} />
       <Tabs.Screen name="profil" options={{ title: 'Profil', tabBarIcon: icon('person-outline') }} />
     </Tabs>
   );

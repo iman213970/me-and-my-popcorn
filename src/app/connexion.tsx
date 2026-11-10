@@ -11,6 +11,7 @@ function frError(m: string) {
   if (s.includes('already registered') || s.includes('already been registered')) return 'Cet e-mail a déjà un compte. Connecte-toi.';
   if (s.includes('password') && s.includes('6')) return 'Le mot de passe doit faire au moins 6 caractères.';
   if (s.includes('email not confirmed')) return "Confirme d'abord ton e-mail avec le lien que tu as reçu.";
+  if (s.includes('signups not allowed') || s.includes('signup is disabled') || s.includes('signups are disabled')) return "Les inscriptions sont fermées. Demande à Iman de créer ton compte.";
   if (s.includes('rate limit')) return 'Trop d\'essais. Réessaie dans quelques minutes.';
   if (s.includes('valid email') || s.includes('invalid email')) return "Cet e-mail n'est pas valide.";
   if (s.includes('failed to fetch') || s.includes('network')) return 'Pas de connexion au serveur. Vérifie ta connexion internet.';
