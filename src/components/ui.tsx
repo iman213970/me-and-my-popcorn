@@ -116,16 +116,7 @@ export function Kv({ label, value, span, third }: { label: string; value: string
   );
 }
 
-export const AVATAR_COLORS: [string, string][] = [['#8B7CFF', '#4B3FBF'], ['#FFC14D', '#C77A12'], ['#5EEAD4', '#1F8F82'], ['#FF9AA8', '#B03A55'], ['#7AA8FF', '#2F4FA8'], ['#C5E86C', '#5C8A1E'], ['#FF8A5B', '#A8421A'], ['#D58CFF', '#7A2FA8']];
-const AVATAR_ICONS: (keyof typeof Ionicons.glyphMap)[] = ['ellipse', 'triangle', 'square', 'diamond', 'radio-button-on', 'stats-chart', 'moon', 'star'];
-export function Avatar({ i, size = 44 }: { i: number; size?: number }) {
-  const k = ((i % 8) + 8) % 8;
-  return (
-    <LinearGradient colors={AVATAR_COLORS[k]} style={{ width: size, height: size, borderRadius: size / 2, alignItems: 'center', justifyContent: 'center' }}>
-      <Ionicons name={AVATAR_ICONS[k]} size={size * 0.45} color="#fff" />
-    </LinearGradient>
-  );
-}
+export { Avatar } from './AvatarView';
 
 const s = StyleSheet.create({
   root: { flex: 1, backgroundColor: C.bg },

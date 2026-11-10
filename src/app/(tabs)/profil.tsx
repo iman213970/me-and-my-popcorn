@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
-import { Avatar, AVATAR_COLORS, Btn, Card, Chip, Chips, Field, H1, H2, Mu, Screen, Switch } from '../../components/ui';
+import { AvatarMaker } from '../../components/AvatarMaker';
+import { Avatar, Btn, Card, Chip, Chips, Field, H1, H2, Mu, Screen, Switch } from '../../components/ui';
 import { fmtLong, total } from '../../lib/calc';
 import { FAV_GENRES, PLATFORMS } from '../../lib/options';
 import { BY, useStore } from '../../lib/store';
@@ -30,13 +31,7 @@ export default function Profil() {
         </View>
         {open ? (
           <View style={{ gap: 8 }}>
-            <Mu size={12}>Choisis ton avatar</Mu>
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
-              {AVATAR_COLORS.map((_, i) => (
-                <Pressable key={i} onPress={() => { patchPrefs({ avatar: i }); setOpen(false); }} accessibilityRole="button" accessibilityLabel={`Avatar ${i + 1}`}
-                  style={{ padding: 3, borderRadius: 40, borderWidth: 2, borderColor: P.avatar === i ? C.tx : 'transparent' }}><Avatar i={i} size={56} /></Pressable>
-              ))}
-            </View>
+            <AvatarMaker value={P.avatar} onChange={(n) => patchPrefs({ avatar: n })} />
           </View>
         ) : null}
         <Field label="Bio" value={P.bio} onChangeText={(v) => patchPrefs({ bio: v })} multiline placeholder="Quelques mots sur toi" maxLength={140} />
