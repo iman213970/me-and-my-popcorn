@@ -6,7 +6,7 @@ import { Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { FeelPicker, Journal } from '../../components/Journal';
 import { Bar, Btn, Card, Chip, Chips, Field, H1, H2, Kv, Mu, Poster, Stepper, Switch } from '../../components/ui';
-import { cum, fmtDur, fmtH, pos, total } from '../../lib/calc';
+import { cum, fmtDateInput, fmtDur, fmtH, pos, todayFr, total } from '../../lib/calc';
 import { BY, STATUSES, useStore, type Visibility } from '../../lib/store';
 import { C } from '../../lib/theme';
 import { PLATFORMS } from '../../lib/options';
@@ -106,8 +106,14 @@ export default function Fiche() {
                   </View>
                   <Mu size={12}>{film ? `Durée du film : ${t.dur} min.` : `Total = ${tot} épisodes × ${t.dur} min. Regardé = ${e.watched} × ${t.dur} min.`}</Mu>
                   <View style={{ flexDirection: 'row', gap: 10 }}>
-                    <View style={{ flex: 1 }}><Field label="Date de début" value={e.start} onChangeText={(v) => patch(t.id, { start: v })} placeholder="jj/mm/aaaa" /></View>
-                    <View style={{ flex: 1 }}><Field label="Date de fin" value={e.end} onChangeText={(v) => patch(t.id, { end: v })} placeholder="jj/mm/aaaa" /></View>
+                    {([['Date de début (facultatif)', 'start'], ['Date de fin (facultatif)', 'end']] as const).map(([lab, key]) => (
+                      <View key={key} style={{ flex: 1, gap: 2 }}>
+                        <Field label={lab} value={e[key]} onChangeText={(v) => patch(t.id, { [key]: fmtDateInput(v) })} placeholder="jj/mm/aaaa" keyboardType="number-pad" maxLength={10} />
+                        <Pressable onPress={() => patch(t.id, { [key]: todayFr() })} accessibilityRole="button" style={{ minHeight: 44, justifyContent: 'center' }}>
+                          <Text style={{ color: C.ac, fontSize: 13, fontWeight: '600' }}>Aujourd'hui</Text>
+                        </Pressable>
+                      </View>
+                    ))}
                   </View>
                   <View style={{ gap: 6 }}>
                     <Mu size={12}>Plateforme</Mu>

@@ -36,3 +36,20 @@ export function fmtDur(m: number) {
   if (h === 0) return `${mi} min`;
   return mi === 0 ? `${h} h` : `${h} h ${mi < 10 ? '0' : ''}${mi} min`;
 }
+
+/** Saisie de date « jj/mm/aaaa » : ajoute les / tout seul. */
+export function fmtDateInput(v: string): string {
+  const d = v.replace(/\D/g, '').slice(0, 8);
+  if (d.length <= 2) return d;
+  if (d.length <= 4) return `${d.slice(0, 2)}/${d.slice(2)}`;
+  return `${d.slice(0, 2)}/${d.slice(2, 4)}/${d.slice(4)}`;
+}
+export function todayFr(): string {
+  const n = new Date();
+  return `${String(n.getDate()).padStart(2, '0')}/${String(n.getMonth() + 1).padStart(2, '0')}/${n.getFullYear()}`;
+}
+/** « jj/mm/aaaa » -> nombre comparable (0 si vide ou invalide). */
+export function dateKey(s: string): number {
+  const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(s || '');
+  return m ? Number(m[3]) * 10000 + Number(m[2]) * 100 + Number(m[1]) : 0;
+}

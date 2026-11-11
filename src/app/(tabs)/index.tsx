@@ -3,7 +3,7 @@ import React from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { TitleGrid } from '../../components/TitleGrid';
 import { Avatar, Bar, Card, H1, H2, Mu, Poster, Screen } from '../../components/ui';
-import { fmtDur, fmtLong, pos, total } from '../../lib/calc';
+import { dateKey, fmtDur, fmtLong, pos, total } from '../../lib/calc';
 import { BY, useStore } from '../../lib/store';
 import { C } from '../../lib/theme';
 
@@ -17,6 +17,9 @@ export default function Accueil() {
   });
   const rest = tot - seen, pct = tot ? Math.round((seen / tot) * 100) : 0;
   const enCours = ids.filter((id) => state.list[id].status === 'En cours');
+  const best = ids.filter((id) => state.list[id].note > 0).sort((a, b) => state.list[b].note - state.list[a].note).slice(0, 6);
+  const lastDone = ids.map((id, k) => ({ id, k })).filter((x) => state.list[x.id].status === 'Terminé')
+    .sort((a, b) => (dateKey(state.list[b.id].end) - dateKey(state.list[a.id].end)) || (b.k - a.k))[0]?.id;
   const favs = ids.filter((id) => state.list[id].fav);
   const aVoir = ids.filter((id) => state.list[id].status === 'À regarder');
   const cnt: Record<string, number> = {};
@@ -70,6 +73,27 @@ export default function Accueil() {
             </Card>
           );
         }) : <Text style={empty}>Aucune série en cours.</Text>}
+      </View>
+
+      {lastDone ? (
+        <View style={{ gap: 12 }}>
+          <H2>Dernier terminé</H2>
+          <Card style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 12 }}>
+            <Pressable onPress={() => router.push(`/titre/${lastDone}`)} style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 12 }} accessibilityRole="button" accessibilityLabel={`Ouvrir ${BY[lastDone].title}`}>
+              <Poster t={BY[lastDone]} w={52} rounded={10} />
+              <View style={{ flex: 1, gap: 4 }}>
+                <Text style={{ color: C.tx, fontSize: 16, fontWeight: '700' }}>{BY[lastDone].title}</Text>
+                <Mu>{state.list[lastDone].end ? `Fini le ${state.list[lastDone].end}` : 'Terminé'}{state.list[lastDone].note ? ` · ${state.list[lastDone].note}/10` : ''}</Mu>
+                {state.list[lastDone].feel.length ? <Text style={{ fontSize: 16 }}>{state.list[lastDone].feel.slice(0, 5).join(' ')}</Text> : null}
+              </View>
+            </Pressable>
+          </Card>
+        </View>
+      ) : null}
+
+      <View style={{ gap: 12 }}>
+        <H2>Les mieux notés</H2>
+        {best.length ? <TitleGrid ids={best} extra={(id) => <Text style={{ color: C.gold, fontWeight: '700', fontSize: 13 }}>★ {state.list[id].note}/10</Text>} /> : <Text style={empty}>Note un titre pour le voir ici.</Text>}
       </View>
 
       <Card>
