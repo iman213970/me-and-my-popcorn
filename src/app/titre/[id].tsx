@@ -8,7 +8,7 @@ import { FeelPicker, Journal } from '../../components/Journal';
 import { Bar, Btn, Card, Chip, Chips, Field, H1, H2, Kv, Mu, Poster, Stepper, Switch } from '../../components/ui';
 import { cum, fmtDateInput, fmtDur, fmtH, pos, todayFr, total } from '../../lib/calc';
 import { BY, STATUSES, useStore, type Visibility } from '../../lib/store';
-import { C } from '../../lib/theme';
+import { C, SHADOW, statusLabel } from '../../lib/theme';
 import { PLATFORMS } from '../../lib/options';
 
 export default function Fiche() {
@@ -41,21 +41,21 @@ export default function Fiche() {
   return (
     <View style={{ flex: 1, backgroundColor: C.bg }}>
       <ScrollView contentContainerStyle={{ paddingBottom: e ? 40 : 110 }} keyboardShouldPersistTaps="handled">
-        <LinearGradient colors={[t.c[0], C.bg]} style={{ height: e ? 250 : 310, alignItems: 'center', justifyContent: 'center' }}>
+        <LinearGradient colors={[t.c[0], C.wine, C.bg]} locations={[0, 0.55, 1]} style={{ height: e ? 270 : 330, alignItems: 'center', justifyContent: 'center' }}>
           <SafeAreaView edges={['top']} style={{ position: 'absolute', top: 0, left: 0 }}>
             <Pressable onPress={back} accessibilityRole="button" accessibilityLabel="Retour"
-              style={{ margin: 12, width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(18,18,28,0.6)', alignItems: 'center', justifyContent: 'center' }}>
+              style={{ margin: 12, width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(22,16,14,0.65)', alignItems: 'center', justifyContent: 'center' }}>
               <Ionicons name="chevron-back" size={22} color={C.tx} />
             </Pressable>
           </SafeAreaView>
-          <View style={{ width: e ? 112 : 150 }}><Poster t={t} /></View>
+          <View style={{ width: e ? 120 : 160, transform: [{ rotate: '-3deg' }], boxShadow: SHADOW }}><Poster t={t} rounded={26} /></View>
         </LinearGradient>
 
         <View style={{ padding: 20, gap: 18, width: '100%', maxWidth: 520, alignSelf: 'center' }}>
           <View style={{ gap: 8 }}>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 10 }}>
               <H1>{t.title}</H1>
-              {e ? <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#12312E', borderRadius: 99, paddingHorizontal: 10, paddingVertical: 3 }}><Ionicons name="checkmark" size={12} color={C.mint} /><Text style={{ color: C.mint, fontSize: 12, fontWeight: '700' }}>Dans ma liste</Text></View> : null}
+              {e ? <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#1F3326', borderRadius: 99, paddingHorizontal: 10, paddingVertical: 3 }}><Ionicons name="checkmark" size={12} color={C.mint} /><Text style={{ color: C.mint, fontSize: 12, fontWeight: '700' }}>Dans ma liste</Text></View> : null}
             </View>
             <Mu size={14}>{film ? `Film · ${t.year} · ${fmtDur(t.dur)}` : `${t.type} · ${t.year} · ${t.eps.length} saison${t.eps.length > 1 ? 's' : ''} · ${t.dur} min`}</Mu>
           </View>
@@ -79,7 +79,7 @@ export default function Fiche() {
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}><H2>Mon suivi</H2><Tag label="optionnel" /></View>
                   <View style={{ gap: 6 }}>
                     <Mu size={12}>Avancement</Mu>
-                    <Chips>{STATUSES.map((s) => <Chip key={s} label={s} on={e.status === s} onPress={() => (s === 'Terminé' ? setWatched(t.id, tot) : patch(t.id, { status: s }))} />)}</Chips>
+                    <Chips>{STATUSES.map((s) => <Chip key={s} label={statusLabel(s)} on={e.status === s} onPress={() => (s === 'Terminé' ? setWatched(t.id, tot) : patch(t.id, { status: s }))} />)}</Chips>
                   </View>
                   {film ? (
                     <Btn label={e.watched >= 1 ? 'Marquer comme pas vu' : 'Marquer comme vu'} kind={e.watched >= 1 ? 'alt' : 'main'} icon={e.watched >= 1 ? undefined : 'checkmark'}
@@ -147,7 +147,7 @@ export default function Fiche() {
                       {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
                         <Pressable key={n} onPress={() => patch(t.id, { note: e.note === n ? 0 : n })} accessibilityRole="button" accessibilityLabel={`${n} sur 10`} accessibilityState={{ selected: e.note >= n }}
                           style={{ width: '10%', minHeight: 44, alignItems: 'center', justifyContent: 'center' }}>
-                          <Ionicons name={e.note >= n ? 'star' : 'star-outline'} size={22} color={e.note >= n ? C.gold : '#6B6A85'} />
+                          <Ionicons name={e.note >= n ? 'star' : 'star-outline'} size={22} color={e.note >= n ? C.gold : '#8A7767'} />
                         </Pressable>
                       ))}
                     </View>
@@ -198,5 +198,5 @@ export default function Fiche() {
 }
 
 function Tag({ label }: { label: string }) {
-  return <View style={{ borderWidth: 1, borderColor: '#3A3A55', borderRadius: 99, paddingHorizontal: 8, paddingVertical: 2 }}><Text style={{ color: C.mu, fontSize: 11 }}>{label}</Text></View>;
+  return <View style={{ borderWidth: 1, borderColor: C.line, borderRadius: 99, paddingHorizontal: 8, paddingVertical: 2 }}><Text style={{ color: C.mu, fontSize: 11 }}>{label}</Text></View>;
 }

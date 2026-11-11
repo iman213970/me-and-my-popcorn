@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Text, View } from 'react-native';
+import { PopcornArt, TicketArt } from '../components/Cine';
+import { FadeIn } from '../components/fx';
 import { Btn, Card, Field, H1, Mu, Screen, Seg } from '../components/ui';
 import { APP_NAME, APP_SUBTITLE } from '../config';
 import { supabase } from '../lib/supabase';
@@ -51,10 +53,16 @@ export default function Connexion() {
 
   return (
     <Screen>
-      <View style={{ gap: 6, paddingTop: 24 }}>
-        <H1>{APP_NAME}</H1>
-        <Mu size={14}>{APP_SUBTITLE}</Mu>
-      </View>
+      <FadeIn>
+        <View style={{ alignItems: 'center', gap: 6, paddingTop: 28 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
+            <View style={{ marginRight: -14, marginBottom: 6 }}><TicketArt size={64} opacity={0.9} /></View>
+            <PopcornArt size={110} />
+          </View>
+          <H1>{APP_NAME}</H1>
+          <Mu size={14}>{APP_SUBTITLE}</Mu>
+        </View>
+      </FadeIn>
       <Seg options={['Connexion', 'Créer un compte']} value={mode} onChange={(m) => { setMode(m); setErr(''); setMsg(''); }} />
       <Card>
         <Field label="E-mail" value={email} onChangeText={setEmail} autoCapitalize="none" autoComplete="email" keyboardType="email-address" textContentType="emailAddress" />

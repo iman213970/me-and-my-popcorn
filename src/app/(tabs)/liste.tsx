@@ -2,9 +2,9 @@ import { Ionicons } from '@expo/vector-icons';
 import React, { useMemo, useState } from 'react';
 import { Modal, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { TitleGrid } from '../../components/TitleGrid';
-import { Btn, Chip, H1, Pill, Screen } from '../../components/ui';
+import { Btn, Chip, Empty, H1, Pill, Screen, Stars } from '../../components/ui';
 import { BY, STATUSES, useStore } from '../../lib/store';
-import { C } from '../../lib/theme';
+import { C, FONT_DISPLAY, SHADOW_SOFT, statusLabel } from '../../lib/theme';
 
 export default function MaListe() {
   const { state } = useStore();
@@ -29,13 +29,13 @@ export default function MaListe() {
     <Screen>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
         <H1>Ma bibliothèque</H1>
-        <View style={{ borderWidth: 1, borderColor: '#3A3A55', borderRadius: 99, paddingHorizontal: 12, paddingVertical: 6 }}>
+        <View style={{ borderWidth: 1, borderColor: C.line, borderRadius: 99, paddingHorizontal: 14, paddingVertical: 7 }}>
           <Text style={{ color: C.tx, fontSize: 13 }}>{all.length} titre{all.length > 1 ? 's' : ''}</Text>
         </View>
       </View>
-      <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: C.sf, borderRadius: 14, paddingHorizontal: 14, gap: 10 }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: C.sf, borderRadius: 99, paddingHorizontal: 18, gap: 10, boxShadow: SHADOW_SOFT }}>
         <Ionicons name="search" size={20} color={C.mu} />
-        <TextInput value={q} onChangeText={setQ} placeholder="Chercher dans ma liste" placeholderTextColor="#6B6A85"
+        <TextInput value={q} onChangeText={setQ} placeholder="Chercher dans ma liste" placeholderTextColor="#8A7767"
           accessibilityLabel="Chercher dans ma liste" style={{ flex: 1, minHeight: 48, color: C.tx, fontSize: 16 }} />
       </View>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
@@ -55,8 +55,8 @@ export default function MaListe() {
           above={(id) => {
             const e = state.list[id];
             return (
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, height: 18 }}>
-                {e.note ? <><Ionicons name="star" size={15} color={C.gold} /><Text style={{ color: C.tx, fontWeight: '700', fontSize: 13 }}>{e.note}/10</Text></> : <Text style={{ color: C.mu, fontSize: 12 }}>pas de note</Text>}
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, height: 18 }}>
+                {e.note ? <><Stars note={e.note} size={13} /><Text style={{ color: C.gold, fontWeight: '700', fontSize: 12 }}>{e.note}</Text></> : <Text style={{ color: C.mu, fontSize: 12 }}>pas encore noté</Text>}
               </View>
             );
           }}
@@ -67,12 +67,13 @@ export default function MaListe() {
                   <Ionicons name="star" size={14} color={C.acfg} />
                 </View>) : null}
               {state.list[id].feel.length ? (
-                <View accessibilityLabel="Mon ressenti" style={{ position: 'absolute', left: 6, bottom: 6, flexDirection: 'row', backgroundColor: 'rgba(18,18,28,0.72)', borderRadius: 99, paddingHorizontal: 6, paddingVertical: 2 }}>
+                <View accessibilityLabel="Mon ressenti" style={{ position: 'absolute', left: 6, bottom: 6, flexDirection: 'row', backgroundColor: 'rgba(22,16,14,0.78)', borderRadius: 99, paddingHorizontal: 6, paddingVertical: 2 }}>
                   <Text style={{ fontSize: 13 }}>{state.list[id].feel.slice(0, 3).join('')}</Text>
                 </View>) : null}
             </>)}
           extra={(id) => <><Text numberOfLines={1} style={{ color: C.mu, fontSize: 12 }}>{BY[id].genre}</Text><Pill status={state.list[id].status} /></>} />
-      ) : <Text style={{ color: C.mu, textAlign: 'center', padding: 20 }}>Aucun titre ne correspond. Ajoute-en depuis le catalogue.</Text>}
+      ) : all.length ? <Empty art="reel" title="Rien ne correspond">Essaie d'enlever un filtre ou de changer ta recherche.</Empty>
+        : <Empty art="ticket" title="Ta bibliothèque est vide">Va dans le catalogue, cherche un film ou une série et ajoute-le. Le pop-corn t'attend 🍿</Empty>}
     </Screen>
   );
 }
@@ -87,12 +88,12 @@ function Dropdown({ label, value, options, onPick }: { label: string; value: str
     <View style={{ gap: 8 }}>
       <Text style={{ color: C.mu, fontSize: 13 }}>{label}</Text>
       <Pressable onPress={() => setOpen(!open)} accessibilityRole="button" accessibilityLabel={`${label} : ${shown}`} accessibilityState={{ expanded: open }}
-        style={{ minHeight: 52, borderRadius: 14, borderWidth: 1, borderColor: C.line, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        style={{ minHeight: 54, borderRadius: 99, borderWidth: 1, borderColor: C.line, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
         <Text style={{ color: C.tx, fontSize: 17, fontWeight: '600' }}>{shown}</Text>
         <Ionicons name={open ? 'chevron-up' : 'chevron-down'} size={20} color={C.mu} />
       </Pressable>
       {open ? (
-        <View style={{ borderRadius: 14, backgroundColor: C.sf2, overflow: 'hidden' }}>
+        <View style={{ borderRadius: 22, backgroundColor: C.sf2, overflow: 'hidden' }}>
           {options.map(([k, l]) => (
             <Pressable key={k} onPress={() => { onPick(k); setOpen(false); }} accessibilityRole="button" accessibilityState={{ selected: k === value }}
               style={{ minHeight: 48, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -113,16 +114,16 @@ function FilterSheet({ open, onClose, value, genres, onApply }: { open: boolean;
   return (
     <Modal visible={open} transparent animationType="slide" onRequestClose={onClose}>
       <Pressable onPress={onClose} accessibilityLabel="Fermer" style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.55)' }} />
-      <View style={{ backgroundColor: C.sf, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 20, paddingBottom: 28, gap: 18, maxHeight: '88%', width: '100%', maxWidth: 520, alignSelf: 'center' }}>
+      <View style={{ backgroundColor: C.sf, borderTopLeftRadius: 32, borderTopRightRadius: 32, padding: 20, paddingBottom: 28, gap: 18, maxHeight: '88%', width: '100%', maxWidth: 520, alignSelf: 'center' }}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Text style={{ color: C.tx, fontSize: 24, fontWeight: '700' }}>Filtres</Text>
+          <Text style={{ color: C.tx, fontSize: 26, fontFamily: FONT_DISPLAY }}>Filtres</Text>
           <Pressable onPress={onClose} accessibilityRole="button" accessibilityLabel="Fermer les filtres"
             style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: C.sf2, alignItems: 'center', justifyContent: 'center' }}>
             <Ionicons name="close" size={22} color={C.tx} />
           </Pressable>
         </View>
         <ScrollView contentContainerStyle={{ gap: 18 }} keyboardShouldPersistTaps="handled">
-          <Dropdown label="Statut" value={d.st} options={['Tous', ...STATUSES].map((x) => [x, x] as [string, string])} onPick={(v) => setD({ ...d, st: v })} />
+          <Dropdown label="Statut" value={d.st} options={['Tous', ...STATUSES].map((x) => [x, statusLabel(x)] as [string, string])} onPick={(v) => setD({ ...d, st: v })} />
           <Dropdown label="Genre" value={d.genre} options={genres.map((x) => [x, x] as [string, string])} onPick={(v) => setD({ ...d, genre: v })} />
           <Dropdown label="Tri" value={d.sort} options={SORTS} onPick={(v) => setD({ ...d, sort: v })} />
         </ScrollView>

@@ -18,7 +18,7 @@ export function FeelPicker({ value, onChange }: { value: string[]; onChange: (v:
           const on = value.includes(f.e);
           return (
             <Pressable key={f.e} onPress={() => toggle(f.e)} accessibilityRole="button" accessibilityLabel={f.label} accessibilityState={{ selected: on }}
-              style={{ width: 48, height: 48, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: on ? '#2A2650' : C.sf2, borderWidth: 2, borderColor: on ? C.ac : 'transparent' }}>
+              style={{ width: 50, height: 50, borderRadius: 25, alignItems: 'center', justifyContent: 'center', backgroundColor: on ? '#43202A' : C.sf2, borderWidth: 2, borderColor: on ? C.ac : 'transparent' }}>
               <Text style={{ fontSize: 24 }}>{f.e}</Text>
             </Pressable>
           );
@@ -85,7 +85,7 @@ export function Journal({ t, watched }: { t: Title; watched: number }) {
       {mine.length ? (
         <View style={{ gap: 10, marginTop: 4 }}>
           {mine.map((n) => (
-            <View key={n.id} style={{ backgroundColor: C.sf2, borderRadius: 14, padding: 12, gap: 6 }}>
+            <View key={n.id} style={{ backgroundColor: C.sf2, borderRadius: 22, padding: 14, gap: 6 }}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                 <Text style={{ color: C.ac, fontWeight: '700', fontSize: 13 }}>{film ? 'Film' : `S${n.season} · E${n.episode}`}</Text>
                 <Mu size={12}>{new Date(n.created_at).toLocaleDateString('fr-FR')}</Mu>

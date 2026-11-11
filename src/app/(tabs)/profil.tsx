@@ -40,8 +40,8 @@ export default function Profil() {
       </Card>
 
       <View style={{ flexDirection: 'row', gap: 10 }}>
-        <View style={{ flex: 1, backgroundColor: C.sf, borderRadius: 16, padding: 14, gap: 6 }}><Mu size={12}>Temps regardé</Mu><Text style={{ color: C.tx, fontSize: 20, fontWeight: '700' }}>{fmtLong(seen)}</Text></View>
-        <View style={{ flex: 1, backgroundColor: C.sf, borderRadius: 16, padding: 14, gap: 6 }}><Mu size={12}>Titres dans ma liste</Mu><Text style={{ color: C.tx, fontSize: 28, fontWeight: '700' }}>{ids.length}</Text></View>
+        <View style={{ flex: 1, backgroundColor: C.sf, borderRadius: 28, padding: 16, gap: 6 }}><Mu size={12}>Temps regardé</Mu><Text style={{ color: C.tx, fontSize: 20, fontWeight: '700' }}>{fmtLong(seen)}</Text></View>
+        <View style={{ flex: 1, backgroundColor: C.sf, borderRadius: 28, padding: 16, gap: 6 }}><Mu size={12}>Titres dans ma liste</Mu><Text style={{ color: C.tx, fontSize: 28, fontWeight: '700' }}>{ids.length}</Text></View>
       </View>
 
       <Card>

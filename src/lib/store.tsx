@@ -1,5 +1,6 @@
 import type { Session } from '@supabase/supabase-js';
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { flash } from './flash';
 import { TMDB_FUNCTION } from '../config';
 import { total } from './calc';
 import { CATALOG, type Title } from './catalog';
@@ -140,6 +141,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     if (ref.current.list[id]) return;
     commit({ ...ref.current, list: { ...ref.current.list, [id]: newEntry() } });
     pushEntry(id);
+    flash('Ajouté à ta liste 🎟️');
   }, [commit, pushEntry]);
 
   const remove = useCallback((id: string) => {
@@ -169,6 +171,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     else if (n === 0 && status === 'Terminé') status = 'À regarder';
     commit({ ...ref.current, list: { ...ref.current.list, [id]: { ...e, watched: n, status } } });
     pushEntry(id);
+    if (n > e.watched) flash(status === 'Terminé' && e.status !== 'Terminé' ? 'Terminé ! Une de plus au compteur 🎬' : t.type === 'Film' ? 'Film vu 🍿' : '+1 épisode 🍿');
   }, [commit, pushEntry]);
 
   const patchPrefs = useCallback((p: Partial<Prefs>) => {

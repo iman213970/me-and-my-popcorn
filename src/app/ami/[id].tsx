@@ -63,8 +63,8 @@ export default function Ami() {
                 <View style={{ flex: 1, gap: 4 }}><H1>{person.pseudo || 'Sans pseudo'}</H1>{person.bio ? <Mu>{person.bio}</Mu> : null}</View>
               </View>
               <View style={{ flexDirection: 'row', gap: 10 }}>
-                <View style={{ flex: 1, backgroundColor: C.sf, borderRadius: 16, padding: 14, gap: 6 }}><Mu size={12}>Temps regardé</Mu><Text style={{ color: C.tx, fontSize: 18, fontWeight: '700' }}>{fmtLong(seen)}</Text></View>
-                <View style={{ flex: 1, backgroundColor: C.sf, borderRadius: 16, padding: 14, gap: 6 }}><Mu size={12}>Titres</Mu><Text style={{ color: C.tx, fontSize: 28, fontWeight: '700' }}>{all.length}</Text></View>
+                <View style={{ flex: 1, backgroundColor: C.sf, borderRadius: 28, padding: 16, gap: 6 }}><Mu size={12}>Temps regardé</Mu><Text style={{ color: C.tx, fontSize: 18, fontWeight: '700' }}>{fmtLong(seen)}</Text></View>
+                <View style={{ flex: 1, backgroundColor: C.sf, borderRadius: 28, padding: 16, gap: 6 }}><Mu size={12}>Titres</Mu><Text style={{ color: C.tx, fontSize: 28, fontWeight: '700' }}>{all.length}</Text></View>
               </View>
               {favs.length ? <View style={{ gap: 12 }}><H2>Ses favoris</H2><TitleGrid ids={favs} above={(t) => stars(byId(t).note)} /></View> : null}
               <View style={{ gap: 12 }}>
