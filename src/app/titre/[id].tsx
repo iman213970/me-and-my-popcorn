@@ -8,6 +8,7 @@ import { FeelPicker, Journal } from '../../components/Journal';
 import { Bar, Btn, Card, Chip, Chips, Field, H1, H2, Kv, Mu, Poster, Stepper, Switch } from '../../components/ui';
 import { cum, fmtDateInput, fmtDur, fmtH, pos, todayFr, total } from '../../lib/calc';
 import { BY, STATUSES, useStore, type Visibility } from '../../lib/store';
+import { shade, usePosterColors } from '../../lib/posterColors';
 import { C, SHADOW, statusLabel } from '../../lib/theme';
 import { PLATFORMS } from '../../lib/options';
 
@@ -17,6 +18,7 @@ export default function Fiche() {
   const [confirm, setConfirm] = useState(false);
   const [newPlat, setNewPlat] = useState<string | null>(null);
   const t = BY[String(id)];
+  const pc = usePosterColors(t);
   if (!t) return <SafeAreaView style={{ flex: 1, backgroundColor: C.bg }}><Text style={{ color: C.tx, padding: 20 }}>Titre introuvable.</Text></SafeAreaView>;
   const e = state.list[t.id];
   const film = t.type === 'Film';
@@ -41,7 +43,7 @@ export default function Fiche() {
   return (
     <View style={{ flex: 1, backgroundColor: C.bg }}>
       <ScrollView contentContainerStyle={{ paddingBottom: e ? 40 : 110 }} keyboardShouldPersistTaps="handled">
-        <LinearGradient colors={[t.c[0], C.wine, C.bg]} locations={[0, 0.55, 1]} style={{ height: e ? 270 : 330, alignItems: 'center', justifyContent: 'center' }}>
+        <LinearGradient colors={pc ? [shade(pc[0], 0.75), shade(pc[0], 0.42), shade(pc[1], 0.18), C.bg] : [t.c[0], C.wine, C.bg]} locations={pc ? [0, 0.4, 0.75, 1] : [0, 0.55, 1]} style={{ height: e ? 270 : 330, alignItems: 'center', justifyContent: 'center' }}>
           <SafeAreaView edges={['top']} style={{ position: 'absolute', top: 0, left: 0 }}>
             <Pressable onPress={back} accessibilityRole="button" accessibilityLabel="Retour"
               style={{ margin: 12, width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(18,18,28,0.65)', alignItems: 'center', justifyContent: 'center' }}>
