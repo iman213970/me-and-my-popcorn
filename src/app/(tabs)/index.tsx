@@ -54,7 +54,7 @@ export default function Accueil() {
     const film = t.type === 'Film', going = e.status === 'En cours';
     return (
       <Press onPress={() => router.push(`/titre/${hero}`)} accessibilityRole="button" accessibilityLabel={`Ouvrir ${t.title}`} zoom={1.01} down={0.98}>
-        <LinearGradient colors={[C.wine, '#2A1219', C.sf]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+        <LinearGradient colors={[C.wine, '#241C4D', C.sf]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
           style={{ borderRadius: 36, padding: 18, flexDirection: 'row', gap: 16, alignItems: 'center', overflow: 'hidden', boxShadow: SHADOW }}>
           <View style={{ position: 'absolute', right: -34, top: -34 }}><ReelArt size={150} opacity={0.14} /></View>
           <View style={{ width: 118, transform: [{ rotate: '-4deg' }] }}><Poster t={t} rounded={24} /></View>
@@ -116,7 +116,7 @@ export default function Accueil() {
                     {film ? null : <Bar pct={(e.watched / tt) * 100} />}
                   </Press>
                   <Press onPress={() => setWatched(id, e.watched + 1)} accessibilityRole="button" accessibilityLabel={film ? `Marquer ${t.title} comme vu` : `Ajouter un épisode à ${t.title}`}
-                    style={{ marginTop: 10, height: 44, borderRadius: 99, backgroundColor: C.ac, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 6, boxShadow: '0px 6px 16px rgba(228,87,46,0.35)' }}>
+                    style={{ marginTop: 10, height: 44, borderRadius: 99, backgroundColor: C.ac, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 6, boxShadow: '0px 6px 16px rgba(139,124,255,0.35)' }}>
                     <Ionicons name={film ? 'checkmark' : 'add'} size={18} color={C.acfg} />
                     <Text style={{ color: C.acfg, fontWeight: '700', fontSize: 14 }}>{film ? 'Vu' : '+1 épisode'}</Text>
                   </Press>
@@ -185,7 +185,7 @@ export default function Accueil() {
 function Tile({ icon, label, value, down }: { icon: keyof typeof Ionicons.glyphMap; label: string; value: string; down?: boolean }) {
   return (
     <View style={{ flex: 1, backgroundColor: C.sf, borderRadius: 32, padding: 16, gap: 8, marginTop: down ? 18 : 0, boxShadow: SHADOW_SOFT }}>
-      <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(228,87,46,0.18)', alignItems: 'center', justifyContent: 'center' }}><Ionicons name={icon} size={20} color={C.ac} /></View>
+      <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(139,124,255,0.18)', alignItems: 'center', justifyContent: 'center' }}><Ionicons name={icon} size={20} color={C.ac} /></View>
       <Text style={{ color: C.tx, fontSize: 34, fontFamily: FONT_DISPLAY }}>{value}</Text>
       <Mu size={12}>{label}</Mu>
     </View>

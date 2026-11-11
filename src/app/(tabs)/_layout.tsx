@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { C, SHADOW } from '../../lib/theme';
 
 const icon = (name: keyof typeof Ionicons.glyphMap, on: keyof typeof Ionicons.glyphMap) => ({ color, focused }: { color: any; focused: boolean }) => (
-  <View style={{ width: 46, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center', backgroundColor: focused ? 'rgba(228,87,46,0.2)' : 'transparent' }}>
+  <View style={{ width: 46, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center', backgroundColor: focused ? 'rgba(139,124,255,0.2)' : 'transparent' }}>
     <Ionicons name={focused ? on : name} size={21} color={color} />
   </View>
 );

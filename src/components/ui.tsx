@@ -83,11 +83,11 @@ export function Seg({ options, value, onChange }: { options: string[]; value: st
 }
 
 export function Btn({ label, onPress, kind = 'main', icon, disabled }: { label: string; onPress: () => void; kind?: 'main' | 'alt' | 'danger' | 'on'; icon?: keyof typeof Ionicons.glyphMap; disabled?: boolean }) {
-  const bg = kind === 'main' ? C.ac : kind === 'alt' ? C.sf2 : kind === 'danger' ? '#43202A' : '#1F3326';
+  const bg = kind === 'main' ? C.ac : kind === 'alt' ? C.sf2 : kind === 'danger' ? '#3A1D24' : '#1F3326';
   const fg = kind === 'main' ? C.acfg : kind === 'alt' ? C.tx : kind === 'danger' ? C.rose : C.mint;
   return (
     <Press onPress={onPress} disabled={disabled} accessibilityRole="button" accessibilityLabel={label}
-      style={[{ minHeight: 52, borderRadius: 99, backgroundColor: bg, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8, paddingHorizontal: 22, opacity: disabled ? 0.4 : 1 }, kind === 'main' && { boxShadow: '0px 8px 20px rgba(228,87,46,0.35)' }]}>
+      style={[{ minHeight: 52, borderRadius: 99, backgroundColor: bg, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8, paddingHorizontal: 22, opacity: disabled ? 0.4 : 1 }, kind === 'main' && { boxShadow: '0px 8px 20px rgba(139,124,255,0.35)' }]}>
       {icon ? <Ionicons name={icon} size={20} color={fg} /> : null}
       <Text style={{ color: fg, fontWeight: '700', fontSize: 16 }}>{label}</Text>
     </Press>
@@ -98,7 +98,7 @@ export function Field({ label, ...p }: { label: string } & TextInputProps) {
   return (
     <View style={{ gap: 6 }}>
       <Text style={{ color: C.mu, fontSize: 12 }}>{label}</Text>
-      <TextInput {...p} accessibilityLabel={label} placeholderTextColor="#85838C"
+      <TextInput {...p} accessibilityLabel={label} placeholderTextColor="#6B6A85"
         style={[{ minHeight: 50, borderRadius: 20, backgroundColor: C.sf2, color: C.tx, paddingHorizontal: 14, fontSize: 16 }, p.multiline && { paddingTop: 14, minHeight: 90, textAlignVertical: 'top' }]} />
     </View>
   );

@@ -13,7 +13,7 @@ export function PopcornArt({ size = 96, opacity = 1 }: P) {
         <Circle key={k} cx={x} cy={y} r={r} fill="#FFE08A" stroke={ink} strokeWidth={2.2} />
       ))}
       <Path d="M20 48 L80 48 L74 94 L26 94Z" fill="#fff" stroke={ink} strokeWidth={2.4} strokeLinejoin="round" />
-      <Path d="M20 48 L32 48 L35 94 L26 94Z M44 48 L56 48 L55 94 L45 94Z M68 48 L80 48 L74 94 L65 94Z" fill={C.ac} />
+      <Path d="M20 48 L32 48 L35 94 L26 94Z M44 48 L56 48 L55 94 L45 94Z M68 48 L80 48 L74 94 L65 94Z" fill="#E5484D" />
       <Path d="M20 48 L80 48 L74 94 L26 94Z" fill="none" stroke={ink} strokeWidth={2.4} strokeLinejoin="round" />
     </Svg>
   );
@@ -37,15 +37,15 @@ export function TicketArt({ size = 96, opacity = 1 }: P) {
 export function ClapArt({ size = 96, opacity = 1 }: P) {
   return (
     <Svg width={size} height={size} viewBox="0 0 100 100" opacity={opacity}>
-      <Rect x={14} y={44} width={72} height={44} rx={8} fill="#2A2A30" stroke={ink} strokeWidth={2.4} />
+      <Rect x={14} y={44} width={72} height={44} rx={8} fill="#26263A" stroke={ink} strokeWidth={2.4} />
       <Path d="M24 56 H76 M24 68 H60 M24 78 H70" stroke={C.soft} strokeWidth={3} strokeLinecap="round" opacity={0.75} />
       <G rotation={-16} origin="14, 42">
         <Rect x={14} y={26} width={74} height={16} rx={5} fill="#fff" stroke={ink} strokeWidth={2.4} />
-        <Path d="M26 26 L18 42 M42 26 L34 42 M58 26 L50 42 M74 26 L66 42" stroke={C.ac} strokeWidth={7} />
+        <Path d="M26 26 L18 42 M42 26 L34 42 M58 26 L50 42 M74 26 L66 42" stroke="#E5484D" strokeWidth={7} />
         <Rect x={14} y={26} width={74} height={16} rx={5} fill="none" stroke={ink} strokeWidth={2.4} />
       </G>
       <Rect x={14} y={42} width={72} height={9} rx={3} fill="#fff" stroke={ink} strokeWidth={2.4} />
-      <Path d="M24 42 L18 51 M40 42 L34 51 M56 42 L50 51 M72 42 L66 51" stroke={C.ac} strokeWidth={6} />
+      <Path d="M24 42 L18 51 M40 42 L34 51 M56 42 L50 51 M72 42 L66 51" stroke="#E5484D" strokeWidth={6} />
     </Svg>
   );
 }

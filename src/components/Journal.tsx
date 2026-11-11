@@ -18,7 +18,7 @@ export function FeelPicker({ value, onChange }: { value: string[]; onChange: (v:
           const on = value.includes(f.e);
           return (
             <Pressable key={f.e} onPress={() => toggle(f.e)} accessibilityRole="button" accessibilityLabel={f.label} accessibilityState={{ selected: on }}
-              style={{ width: 50, height: 50, borderRadius: 25, alignItems: 'center', justifyContent: 'center', backgroundColor: on ? '#43202A' : C.sf2, borderWidth: 2, borderColor: on ? C.ac : 'transparent' }}>
+              style={{ width: 50, height: 50, borderRadius: 25, alignItems: 'center', justifyContent: 'center', backgroundColor: on ? '#2A2550' : C.sf2, borderWidth: 2, borderColor: on ? C.ac : 'transparent' }}>
               <Text style={{ fontSize: 24 }}>{f.e}</Text>
             </Pressable>
           );
