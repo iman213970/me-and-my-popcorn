@@ -1,8 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import React, { useMemo, useState } from 'react';
-import { Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { Modal, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { TitleGrid } from '../../components/TitleGrid';
-import { Chip, H1, Pill, Screen, Seg } from '../../components/ui';
+import { Btn, Chip, H1, Pill, Screen } from '../../components/ui';
 import { BY, STATUSES, useStore } from '../../lib/store';
 import { C } from '../../lib/theme';
 
@@ -15,6 +15,7 @@ export default function MaListe() {
   const [st, setSt] = useState('Tous');
   const [more, setMore] = useState(false);
   const all = Object.keys(state.list);
+  const nActive = (st !== 'Tous' ? 1 : 0) + (genre !== 'Tous' ? 1 : 0) + (sort !== 'Ajout' ? 1 : 0);
   const used = Array.from(new Set(all.map((id) => BY[id].genre))).sort();
   const ids = useMemo(() => {
     const k = q.trim().toLowerCase();
@@ -38,24 +39,17 @@ export default function MaListe() {
           accessibilityLabel="Chercher dans ma liste" style={{ flex: 1, minHeight: 48, color: C.tx, fontSize: 16 }} />
       </View>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 6 }} style={{ flex: 1 }}>
+        <View style={{ flexDirection: 'row', gap: 6, flex: 1 }}>
           {['Tous', 'Séries', 'Films'].map((x) => <Chip key={x} label={x} small on={kind === x} onPress={() => setKind(x)} />)}
-          <View style={{ width: 1, backgroundColor: C.line, marginHorizontal: 4 }} />
-          {STATUSES.map((x) => <Chip key={x} label={x} small on={st === x} onPress={() => setSt(st === x ? 'Tous' : x)} />)}
-        </ScrollView>
-        <Pressable onPress={() => setMore(!more)} accessibilityRole="button" accessibilityLabel="Trier et filtrer par genre" accessibilityState={{ expanded: more }}
-          style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: more || genre !== 'Tous' || sort !== 'Ajout' ? C.ac : C.sf2, alignItems: 'center', justifyContent: 'center' }}>
-          <Ionicons name="options-outline" size={20} color={more || genre !== 'Tous' || sort !== 'Ajout' ? C.acfg : C.tx} />
+        </View>
+        <Pressable onPress={() => setMore(true)} accessibilityRole="button" accessibilityLabel={`Filtres${nActive ? `, ${nActive} actif${nActive > 1 ? 's' : ''}` : ''}`}
+          style={{ minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 16, borderRadius: 99, backgroundColor: nActive ? C.ac : C.sf2 }}>
+          <Ionicons name="options-outline" size={20} color={nActive ? C.acfg : C.tx} />
+          <Text style={{ color: nActive ? C.acfg : C.tx, fontWeight: '600', fontSize: 14 }}>Filtres{nActive ? ` · ${nActive}` : ''}</Text>
         </Pressable>
       </View>
-      {more ? (
-        <View style={{ gap: 12 }}>
-          <Seg options={['Ajout', 'Note', 'Titre']} value={sort} onChange={setSort} />
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
-            {['Tous', ...used].map((g) => <Chip key={g} label={g} small on={genre === g} onPress={() => setGenre(g)} />)}
-          </ScrollView>
-        </View>
-      ) : null}
+      <FilterSheet open={more} onClose={() => setMore(false)} genres={['Tous', ...used]}
+        value={{ st, genre, sort }} onApply={(v) => { setSt(v.st); setGenre(v.genre); setSort(v.sort); setMore(false); }} />
       {ids.length ? (
         <TitleGrid ids={ids}
           above={(id) => {
@@ -80,5 +74,66 @@ export default function MaListe() {
           extra={(id) => <><Text numberOfLines={1} style={{ color: C.mu, fontSize: 12 }}>{BY[id].genre}</Text><Pill status={state.list[id].status} /></>} />
       ) : <Text style={{ color: C.mu, textAlign: 'center', padding: 20 }}>Aucun titre ne correspond. Ajoute-en depuis le catalogue.</Text>}
     </Screen>
+  );
+}
+
+const SORTS: [string, string][] = [['Ajout', "Date d'ajout"], ['Note', 'Note'], ['Titre', 'Titre (A à Z)']];
+
+/** Liste déroulante : on touche, les choix apparaissent dessous. */
+function Dropdown({ label, value, options, onPick }: { label: string; value: string; options: [string, string][]; onPick: (v: string) => void }) {
+  const [open, setOpen] = useState(false);
+  const shown = options.find(([k]) => k === value)?.[1] ?? value;
+  return (
+    <View style={{ gap: 8 }}>
+      <Text style={{ color: C.mu, fontSize: 13 }}>{label}</Text>
+      <Pressable onPress={() => setOpen(!open)} accessibilityRole="button" accessibilityLabel={`${label} : ${shown}`} accessibilityState={{ expanded: open }}
+        style={{ minHeight: 52, borderRadius: 14, borderWidth: 1, borderColor: C.line, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Text style={{ color: C.tx, fontSize: 17, fontWeight: '600' }}>{shown}</Text>
+        <Ionicons name={open ? 'chevron-up' : 'chevron-down'} size={20} color={C.mu} />
+      </Pressable>
+      {open ? (
+        <View style={{ borderRadius: 14, backgroundColor: C.sf2, overflow: 'hidden' }}>
+          {options.map(([k, l]) => (
+            <Pressable key={k} onPress={() => { onPick(k); setOpen(false); }} accessibilityRole="button" accessibilityState={{ selected: k === value }}
+              style={{ minHeight: 48, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Text style={{ color: k === value ? C.ac : C.tx, fontSize: 16, fontWeight: k === value ? '700' : '400' }}>{l}</Text>
+              {k === value ? <Ionicons name="checkmark" size={18} color={C.ac} /> : null}
+            </Pressable>
+          ))}
+        </View>
+      ) : null}
+    </View>
+  );
+}
+
+type FV = { st: string; genre: string; sort: string };
+function FilterSheet({ open, onClose, value, genres, onApply }: { open: boolean; onClose: () => void; value: FV; genres: string[]; onApply: (v: FV) => void }) {
+  const [d, setD] = useState<FV>(value);
+  React.useEffect(() => { if (open) setD(value); }, [open]);
+  return (
+    <Modal visible={open} transparent animationType="slide" onRequestClose={onClose}>
+      <Pressable onPress={onClose} accessibilityLabel="Fermer" style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.55)' }} />
+      <View style={{ backgroundColor: C.sf, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 20, paddingBottom: 28, gap: 18, maxHeight: '88%', width: '100%', maxWidth: 520, alignSelf: 'center' }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Text style={{ color: C.tx, fontSize: 24, fontWeight: '700' }}>Filtres</Text>
+          <Pressable onPress={onClose} accessibilityRole="button" accessibilityLabel="Fermer les filtres"
+            style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: C.sf2, alignItems: 'center', justifyContent: 'center' }}>
+            <Ionicons name="close" size={22} color={C.tx} />
+          </Pressable>
+        </View>
+        <ScrollView contentContainerStyle={{ gap: 18 }} keyboardShouldPersistTaps="handled">
+          <Dropdown label="Statut" value={d.st} options={['Tous', ...STATUSES].map((x) => [x, x] as [string, string])} onPick={(v) => setD({ ...d, st: v })} />
+          <Dropdown label="Genre" value={d.genre} options={genres.map((x) => [x, x] as [string, string])} onPick={(v) => setD({ ...d, genre: v })} />
+          <Dropdown label="Tri" value={d.sort} options={SORTS} onPick={(v) => setD({ ...d, sort: v })} />
+        </ScrollView>
+        <View style={{ gap: 10 }}>
+          <Btn label="Appliquer" onPress={() => onApply(d)} />
+          <Pressable onPress={() => onApply({ st: 'Tous', genre: 'Tous', sort: 'Ajout' })} accessibilityRole="button"
+            style={{ minHeight: 48, borderRadius: 99, borderWidth: 1, borderColor: C.line, alignItems: 'center', justifyContent: 'center' }}>
+            <Text style={{ color: C.tx, fontWeight: '600', fontSize: 15 }}>Réinitialiser</Text>
+          </Pressable>
+        </View>
+      </View>
+    </Modal>
   );
 }
