@@ -98,7 +98,7 @@ export function Field({ label, ...p }: { label: string } & TextInputProps) {
   return (
     <View style={{ gap: 6 }}>
       <Text style={{ color: C.mu, fontSize: 12 }}>{label}</Text>
-      <TextInput {...p} accessibilityLabel={label} placeholderTextColor="#8A7767"
+      <TextInput {...p} accessibilityLabel={label} placeholderTextColor="#85838C"
         style={[{ minHeight: 50, borderRadius: 20, backgroundColor: C.sf2, color: C.tx, paddingHorizontal: 14, fontSize: 16 }, p.multiline && { paddingTop: 14, minHeight: 90, textAlignVertical: 'top' }]} />
     </View>
   );
@@ -142,7 +142,7 @@ const s = StyleSheet.create({
   content: { padding: 20, gap: 18, width: '100%', maxWidth: 520, alignSelf: 'center' },
   h1: { color: C.tx, fontSize: 32, fontFamily: FONT_DISPLAY, lineHeight: 38 },
   h2: { color: C.tx, fontSize: 21, fontFamily: FONT_DISPLAY_SEMI },
-  card: { backgroundColor: C.sf, borderRadius: 28, padding: 18, gap: 14, boxShadow: SHADOW_SOFT, borderWidth: 1, borderColor: 'rgba(247,237,224,0.05)' },
+  card: { backgroundColor: C.sf, borderRadius: 28, padding: 18, gap: 14, boxShadow: SHADOW_SOFT, borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)' },
   chip: { minHeight: 44, paddingHorizontal: 16, borderRadius: 99, backgroundColor: C.sf2, alignItems: 'center', justifyContent: 'center' },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   seg: { flexDirection: 'row', backgroundColor: C.sf, borderRadius: 99, padding: 4, gap: 4 },

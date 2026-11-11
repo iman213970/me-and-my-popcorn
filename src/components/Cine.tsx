@@ -3,7 +3,7 @@ import Svg, { Circle, G, Path, Rect } from 'react-native-svg';
 import { C } from '../lib/theme';
 
 type P = { size?: number; opacity?: number };
-const ink = '#2A1812';
+const ink = '#1E1416';
 
 /** Seau de popcorn. */
 export function PopcornArt({ size = 96, opacity = 1 }: P) {
@@ -37,7 +37,7 @@ export function TicketArt({ size = 96, opacity = 1 }: P) {
 export function ClapArt({ size = 96, opacity = 1 }: P) {
   return (
     <Svg width={size} height={size} viewBox="0 0 100 100" opacity={opacity}>
-      <Rect x={14} y={44} width={72} height={44} rx={8} fill="#3A2A24" stroke={ink} strokeWidth={2.4} />
+      <Rect x={14} y={44} width={72} height={44} rx={8} fill="#2A2A30" stroke={ink} strokeWidth={2.4} />
       <Path d="M24 56 H76 M24 68 H60 M24 78 H70" stroke={C.soft} strokeWidth={3} strokeLinecap="round" opacity={0.75} />
       <G rotation={-16} origin="14, 42">
         <Rect x={14} y={26} width={74} height={16} rx={5} fill="#fff" stroke={ink} strokeWidth={2.4} />

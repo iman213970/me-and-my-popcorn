@@ -67,7 +67,7 @@ export default function Catalogue() {
             <View style={{ aspectRatio: 2 / 3, borderRadius: 22, backgroundColor: C.sf2, alignItems: 'center', justifyContent: 'center', overflow: 'hidden', boxShadow: SHADOW_SOFT }}>
               <Text style={{ color: 'rgba(255,255,255,0.3)', fontSize: 40, fontFamily: FONT_DISPLAY }}>{h.title.charAt(0)}</Text>
               {h.poster ? <Image source={{ uri: posterUrl(h.poster) }} resizeMode="cover" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }} /> : null}
-              {busy === key ? <View style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(22,16,14,0.6)', alignItems: 'center', justifyContent: 'center' }}><ActivityIndicator color={C.tx} /></View> : null}
+              {busy === key ? <View style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(18,18,20,0.6)', alignItems: 'center', justifyContent: 'center' }}><ActivityIndicator color={C.tx} /></View> : null}
               {inList ? <View accessibilityLabel="Déjà dans ma liste" style={{ position: 'absolute', top: 8, right: 8, width: 28, height: 28, borderRadius: 14, backgroundColor: C.mint, alignItems: 'center', justifyContent: 'center' }}><Ionicons name="checkmark" size={18} color={C.acfg} /></View> : null}
             </View>
             <Text numberOfLines={2} style={{ color: C.tx, fontFamily: FONT_DISPLAY_SEMI, fontSize: 16, lineHeight: 20 }}>{h.title}</Text>
@@ -90,7 +90,7 @@ export default function Catalogue() {
       <H1>Catalogue</H1>
       <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: C.sf, borderRadius: 99, paddingHorizontal: 18, gap: 10, boxShadow: SHADOW_SOFT }}>
         <Ionicons name="search" size={20} color={C.mu} />
-        <TextInput value={q} onChangeText={setQ} placeholder="Chercher un film, une série, un anime" placeholderTextColor="#8A7767"
+        <TextInput value={q} onChangeText={setQ} placeholder="Chercher un film, une série, un anime" placeholderTextColor="#85838C"
           accessibilityLabel="Chercher un film ou une série" style={{ flex: 1, minHeight: 48, color: C.tx, fontSize: 16 }} />
         {loading ? <ActivityIndicator color={C.mu} /> : null}
       </View>

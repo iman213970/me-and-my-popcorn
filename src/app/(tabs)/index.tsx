@@ -54,7 +54,7 @@ export default function Accueil() {
     const film = t.type === 'Film', going = e.status === 'En cours';
     return (
       <Press onPress={() => router.push(`/titre/${hero}`)} accessibilityRole="button" accessibilityLabel={`Ouvrir ${t.title}`} zoom={1.01} down={0.98}>
-        <LinearGradient colors={[C.wine, '#3A1A1C', C.sf]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+        <LinearGradient colors={[C.wine, '#2A1219', C.sf]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
           style={{ borderRadius: 36, padding: 18, flexDirection: 'row', gap: 16, alignItems: 'center', overflow: 'hidden', boxShadow: SHADOW }}>
           <View style={{ position: 'absolute', right: -34, top: -34 }}><ReelArt size={150} opacity={0.14} /></View>
           <View style={{ width: 118, transform: [{ rotate: '-4deg' }] }}><Poster t={t} rounded={24} /></View>
@@ -89,7 +89,7 @@ export default function Accueil() {
       </FadeIn>
 
       <FadeIn delay={200}>
-        <LinearGradient colors={['#3A1F1B', C.sf]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ borderRadius: 32, padding: 20, gap: 12, boxShadow: SHADOW_SOFT }}>
+        <LinearGradient colors={['#2A1319', C.sf]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ borderRadius: 32, padding: 20, gap: 12, boxShadow: SHADOW_SOFT }}>
           <Mu>Temps de visionnage total</Mu>
           <Text style={{ color: C.gold, fontSize: 30, fontFamily: FONT_DISPLAY }}>{fmtLong(tot)}</Text>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}><Bar pct={pct} gold /><Mu size={12}>{pct} %</Mu></View>

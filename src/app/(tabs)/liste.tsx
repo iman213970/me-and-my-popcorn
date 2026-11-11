@@ -35,7 +35,7 @@ export default function MaListe() {
       </View>
       <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: C.sf, borderRadius: 99, paddingHorizontal: 18, gap: 10, boxShadow: SHADOW_SOFT }}>
         <Ionicons name="search" size={20} color={C.mu} />
-        <TextInput value={q} onChangeText={setQ} placeholder="Chercher dans ma liste" placeholderTextColor="#8A7767"
+        <TextInput value={q} onChangeText={setQ} placeholder="Chercher dans ma liste" placeholderTextColor="#85838C"
           accessibilityLabel="Chercher dans ma liste" style={{ flex: 1, minHeight: 48, color: C.tx, fontSize: 16 }} />
       </View>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
@@ -67,7 +67,7 @@ export default function MaListe() {
                   <Ionicons name="star" size={14} color={C.acfg} />
                 </View>) : null}
               {state.list[id].feel.length ? (
-                <View accessibilityLabel="Mon ressenti" style={{ position: 'absolute', left: 6, bottom: 6, flexDirection: 'row', backgroundColor: 'rgba(22,16,14,0.78)', borderRadius: 99, paddingHorizontal: 6, paddingVertical: 2 }}>
+                <View accessibilityLabel="Mon ressenti" style={{ position: 'absolute', left: 6, bottom: 6, flexDirection: 'row', backgroundColor: 'rgba(18,18,20,0.78)', borderRadius: 99, paddingHorizontal: 6, paddingVertical: 2 }}>
                   <Text style={{ fontSize: 13 }}>{state.list[id].feel.slice(0, 3).join('')}</Text>
                 </View>) : null}
             </>)}

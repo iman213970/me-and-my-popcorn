@@ -44,7 +44,7 @@ export default function Fiche() {
         <LinearGradient colors={[t.c[0], C.wine, C.bg]} locations={[0, 0.55, 1]} style={{ height: e ? 270 : 330, alignItems: 'center', justifyContent: 'center' }}>
           <SafeAreaView edges={['top']} style={{ position: 'absolute', top: 0, left: 0 }}>
             <Pressable onPress={back} accessibilityRole="button" accessibilityLabel="Retour"
-              style={{ margin: 12, width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(22,16,14,0.65)', alignItems: 'center', justifyContent: 'center' }}>
+              style={{ margin: 12, width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(18,18,20,0.65)', alignItems: 'center', justifyContent: 'center' }}>
               <Ionicons name="chevron-back" size={22} color={C.tx} />
             </Pressable>
           </SafeAreaView>
@@ -147,7 +147,7 @@ export default function Fiche() {
                       {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
                         <Pressable key={n} onPress={() => patch(t.id, { note: e.note === n ? 0 : n })} accessibilityRole="button" accessibilityLabel={`${n} sur 10`} accessibilityState={{ selected: e.note >= n }}
                           style={{ width: '10%', minHeight: 44, alignItems: 'center', justifyContent: 'center' }}>
-                          <Ionicons name={e.note >= n ? 'star' : 'star-outline'} size={22} color={e.note >= n ? C.gold : '#8A7767'} />
+                          <Ionicons name={e.note >= n ? 'star' : 'star-outline'} size={22} color={e.note >= n ? C.gold : '#85838C'} />
                         </Pressable>
                       ))}
                     </View>

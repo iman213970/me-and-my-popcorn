@@ -18,7 +18,7 @@ export default function TabsLayout() {
       tabBarStyle: {
         position: 'absolute', left: 14, right: 14, bottom: Math.max(14, bottom - 4), height: 74, borderRadius: 37,
         backgroundColor: C.sf, borderTopWidth: 0, paddingTop: 8, paddingBottom: 9, paddingHorizontal: 6,
-        boxShadow: SHADOW, borderWidth: 1, borderColor: 'rgba(247,237,224,0.07)',
+        boxShadow: SHADOW, borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)',
       },
       tabBarLabelStyle: { fontSize: 11, fontWeight: '600' },
       sceneStyle: { backgroundColor: C.bg },
