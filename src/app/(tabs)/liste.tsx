@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import React, { useMemo, useState } from 'react';
-import { ScrollView, Text, TextInput, View } from 'react-native';
+import { Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { TitleGrid } from '../../components/TitleGrid';
 import { Chip, H1, Pill, Screen, Seg } from '../../components/ui';
 import { BY, STATUSES, useStore } from '../../lib/store';
@@ -13,6 +13,7 @@ export default function MaListe() {
   const [sort, setSort] = useState('Ajout');
   const [kind, setKind] = useState('Tous');
   const [st, setSt] = useState('Tous');
+  const [more, setMore] = useState(false);
   const all = Object.keys(state.list);
   const used = Array.from(new Set(all.map((id) => BY[id].genre))).sort();
   const ids = useMemo(() => {
@@ -36,14 +37,25 @@ export default function MaListe() {
         <TextInput value={q} onChangeText={setQ} placeholder="Chercher dans ma liste" placeholderTextColor="#6B6A85"
           accessibilityLabel="Chercher dans ma liste" style={{ flex: 1, minHeight: 48, color: C.tx, fontSize: 16 }} />
       </View>
-      <Seg options={['Tous', 'Séries', 'Films']} value={kind} onChange={setKind} />
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
-        {['Tous', ...STATUSES].map((x) => <Chip key={x} label={x} on={st === x} onPress={() => setSt(x)} />)}
-      </ScrollView>
-      <Seg options={['Ajout', 'Note', 'Titre']} value={sort} onChange={setSort} />
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
-        {['Tous', ...used].map((g) => <Chip key={g} label={g} on={genre === g} onPress={() => setGenre(g)} />)}
-      </ScrollView>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 6 }} style={{ flex: 1 }}>
+          {['Tous', 'Séries', 'Films'].map((x) => <Chip key={x} label={x} small on={kind === x} onPress={() => setKind(x)} />)}
+          <View style={{ width: 1, backgroundColor: C.line, marginHorizontal: 4 }} />
+          {STATUSES.map((x) => <Chip key={x} label={x} small on={st === x} onPress={() => setSt(st === x ? 'Tous' : x)} />)}
+        </ScrollView>
+        <Pressable onPress={() => setMore(!more)} accessibilityRole="button" accessibilityLabel="Trier et filtrer par genre" accessibilityState={{ expanded: more }}
+          style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: more || genre !== 'Tous' || sort !== 'Ajout' ? C.ac : C.sf2, alignItems: 'center', justifyContent: 'center' }}>
+          <Ionicons name="options-outline" size={20} color={more || genre !== 'Tous' || sort !== 'Ajout' ? C.acfg : C.tx} />
+        </Pressable>
+      </View>
+      {more ? (
+        <View style={{ gap: 12 }}>
+          <Seg options={['Ajout', 'Note', 'Titre']} value={sort} onChange={setSort} />
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
+            {['Tous', ...used].map((g) => <Chip key={g} label={g} small on={genre === g} onPress={() => setGenre(g)} />)}
+          </ScrollView>
+        </View>
+      ) : null}
       {ids.length ? (
         <TitleGrid ids={ids}
           above={(id) => {
