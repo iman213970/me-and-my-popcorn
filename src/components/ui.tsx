@@ -39,12 +39,11 @@ export function Poster({ t, w, rounded = 22, shadow = true }: { t: Title; w?: nu
   );
 }
 
-/** Note sur 10 affichée en 5 étoiles (demi-étoiles comprises). */
-export function Stars({ note, size = 14 }: { note: number; size?: number }) {
-  const v = note / 2;
+/** Note sur 10 affichée en 10 étoiles. */
+export function Stars({ note, size = 13 }: { note: number; size?: number }) {
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 1 }} accessibilityLabel={`Note ${note} sur 10`}>
-      {[1, 2, 3, 4, 5].map((i) => <Ionicons key={i} name={v >= i ? 'star' : v >= i - 0.5 ? 'star-half' : 'star-outline'} size={size} color={C.gold} />)}
+    <View style={{ flexDirection: 'row', alignItems: 'center' }} accessibilityLabel={`Note ${note} sur 10`}>
+      {Array.from({ length: 10 }, (_, i) => i + 1).map((i) => <Ionicons key={i} name={note >= i ? 'star' : 'star-outline'} size={size} color={C.gold} />)}
     </View>
   );
 }

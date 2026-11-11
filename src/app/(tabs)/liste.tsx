@@ -56,7 +56,7 @@ export default function MaListe() {
             const e = state.list[id];
             return (
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, height: 18 }}>
-                {e.note ? <><Stars note={e.note} size={13} /><Text style={{ color: C.gold, fontWeight: '700', fontSize: 12 }}>{e.note}</Text></> : <Text style={{ color: C.mu, fontSize: 12 }}>pas encore noté</Text>}
+                {e.note ? <><Stars note={e.note} size={11} /></> : <Text style={{ color: C.mu, fontSize: 12 }}>pas encore noté</Text>}
               </View>
             );
           }}

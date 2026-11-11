@@ -156,7 +156,7 @@ export default function Accueil() {
                       <Text style={{ color: C.acfg, fontFamily: FONT_DISPLAY, fontSize: 17 }}>{k + 1}</Text>
                     </View>
                   </View>
-                  <Stars note={state.list[id].note} size={12} />
+                  <Stars note={state.list[id].note} size={11} />
                   <Text numberOfLines={1} style={{ color: C.tx, fontWeight: '700', fontSize: 14 }}>{BY[id].title}</Text>
                 </Press>
               </FadeIn>
