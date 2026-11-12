@@ -31,7 +31,7 @@ export default function Catalogue() {
   const opening = React.useRef(false);
   useFocusEffect(React.useCallback(() => {
     opening.current = false;
-    return () => { setBusy(''); if (opening.current) return; setQ(''); setHits([]); setLoading(false); setMsg(''); };
+    return () => { setBusy(''); if (opening.current) return; setQ(''); setHits([]); setLoading(false); setMsg(''); setGenre('Tous'); setType('Tous'); setGHits([]); setGLoading(false); };
   }, []));
 
   useEffect(() => {
@@ -132,7 +132,7 @@ export default function Catalogue() {
           {genre !== 'Tous' ? (
             <><H2>{`Les plus populaires : ${genre}`}</H2>{gLoading ? <ActivityIndicator color={C.mu} /> : grid(gHits)}</>
           ) : trend.length ? <><H2>Tendances sur TMDB</H2>{grid(trend)}</> : null}
-          {ids.length ? (
+          {ids.length && !(genre !== 'Tous' && gLoading) ? (
             <>
               <H2>Déjà ouverts</H2>
               <TitleGrid ids={ids} badge={(id) => state.list[id] ? (
