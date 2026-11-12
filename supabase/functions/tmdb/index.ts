@@ -102,10 +102,11 @@ Deno.serve(async (req) => {
       // Titres populaires d'un genre (séries et/ou films).
       const genre = String(body.genre ?? '');
       const type = String(body.type ?? 'Tous');
+      const page = String(Math.max(1, Math.min(500, Number(body.page) || 1)));
       const ids = Object.entries(GENRES).filter(([, name]) => name === genre).map(([k]) => k);
       const manga = genre === 'Manga';
       if (!ids.length && !manga) return json({ hits: [] });
-      const common = { sort_by: 'popularity.desc', 'vote_count.gte': '150', include_adult: 'false' } as Record<string, string>;
+      const common = { sort_by: 'popularity.desc', 'vote_count.gte': '50', include_adult: 'false', page } as Record<string, string>;
       const wants = type === 'Séries' ? ['tv'] : type === 'Films' ? ['movie'] : ['tv', 'movie'];
       const lists = await Promise.all(wants.map(async (k) => {
         const p: Record<string, string> = { ...common };
@@ -117,7 +118,7 @@ Deno.serve(async (req) => {
         }));
       }));
       const hits: unknown[] = [];
-      for (let i = 0; hits.length < 18 && lists.some((l) => i < l.length); i++) for (const l of lists) if (i < l.length && hits.length < 18) hits.push(l[i]);
+      for (let i = 0; lists.some((l) => i < l.length); i++) for (const l of lists) if (i < l.length) hits.push(l[i]);
       return json({ hits });
     }
     if (body.action === 'similar') {

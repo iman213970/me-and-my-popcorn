@@ -5,7 +5,7 @@ import { ActivityIndicator, Image, ScrollView, Text, TextInput, View } from 'rea
 import { TitleGrid } from '../../components/TitleGrid';
 import { FadeIn, Press } from '../../components/fx';
 import { FilterSheet } from '../../components/FilterSheet';
-import { Chip, Empty, H1, H2, Mu, Screen, Seg } from '../../components/ui';
+import { Btn, Chip, Empty, H1, H2, Mu, Screen, Seg } from '../../components/ui';
 import { CATALOG } from '../../lib/catalog';
 import { useStore } from '../../lib/store';
 import { browseTmdb, discoverTmdb, posterUrl, searchTmdb, type TmdbHit } from '../../lib/tmdb';
@@ -23,6 +23,8 @@ export default function Catalogue() {
   const [msg, setMsg] = useState('');
   const [busy, setBusy] = useState('');
   const [sheet, setSheet] = useState(false);
+  const [gPage, setGPage] = useState(1);
+  const [gMore, setGMore] = useState(false);
   const [gHits, setGHits] = useState<TmdbHit[]>([]);
   const [gLoading, setGLoading] = useState(false);
   const searching = q.trim().length >= 2;
@@ -31,7 +33,7 @@ export default function Catalogue() {
   const opening = React.useRef(false);
   useFocusEffect(React.useCallback(() => {
     opening.current = false;
-    return () => { setBusy(''); if (opening.current) return; setQ(''); setHits([]); setLoading(false); setMsg(''); setGenre('Tous'); setType('Tous'); setGHits([]); setGLoading(false); };
+    return () => { setBusy(''); if (opening.current) return; setQ(''); setHits([]); setLoading(false); setMsg(''); setGenre('Tous'); setType('Tous'); setGHits([]); setGLoading(false); setGPage(1); };
   }, []));
 
   useEffect(() => {
@@ -53,11 +55,22 @@ export default function Catalogue() {
   }, [q]);
 
   useEffect(() => {
+    setGPage(1);
     if (genre === 'Tous') { setGHits([]); return; }
     let alive = true; setGLoading(true);
-    discoverTmdb(genre, type).then((r) => { if (!alive) return; setGLoading(false); setGHits(r.hits); if (r.error) setMsg(r.error); });
+    discoverTmdb(genre, type, 1).then((r) => { if (!alive) return; setGLoading(false); setGHits(r.hits); if (r.error) setMsg(r.error); });
     return () => { alive = false; };
   }, [genre, type]);
+
+  const loadMore = async () => {
+    const next = gPage + 1;
+    setGMore(true);
+    const r = await discoverTmdb(genre, type, next);
+    setGMore(false);
+    if (r.error) { setMsg(r.error); return; }
+    setGPage(next);
+    setGHits((cur) => { const seen = new Set(cur.map((h) => `${h.kind}-${h.id}`)); return [...cur, ...r.hits.filter((h) => !seen.has(`${h.kind}-${h.id}`))]; });
+  };
 
   const pick = async (h: TmdbHit) => {
     setBusy(`${h.kind}-${h.id}`); setMsg('');
@@ -130,7 +143,7 @@ export default function Catalogue() {
       {searching ? grid(hits) : (
         <>
           {genre !== 'Tous' ? (
-            <><H2>{`Les plus populaires : ${genre}`}</H2>{gLoading ? <ActivityIndicator color={C.mu} /> : grid(gHits)}</>
+            <><H2>{`Les plus populaires : ${genre}`}</H2>{gLoading ? <ActivityIndicator color={C.mu} /> : grid(gHits)}{!gLoading && gHits.length ? <Btn label={gMore ? 'Chargement…' : 'Voir plus de titres'} kind="alt" icon="chevron-down" disabled={gMore} onPress={loadMore} /> : null}</>
           ) : trend.length ? <><H2>Tendances sur TMDB</H2>{grid(trend)}</> : null}
           {ids.length && !(genre !== 'Tous' && gLoading) ? (
             <>

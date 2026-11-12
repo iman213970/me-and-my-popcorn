@@ -13,7 +13,7 @@ async function call(body: object): Promise<Res> {
 /** Cherche sur TMDB via la fonction Supabase (la clé TMDB n'est jamais dans l'appli). */
 export const searchTmdb = (q: string) => call({ action: 'search', q });
 /** Titres populaires d'un genre (type : Tous, Séries ou Films). */
-export const discoverTmdb = (genre: string, type: string) => call({ action: 'discover', genre, type });
+export const discoverTmdb = (genre: string, type: string, page = 1) => call({ action: 'discover', genre, type, page });
 /** Recommandations pour un titre (id de l'appli, ex. tmdb-tv-123). */
 export const similarTmdb = (id: string) => call({ action: 'similar', id });
 /** Titres du moment sur TMDB. */
