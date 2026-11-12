@@ -4,6 +4,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Image, ScrollView, Text, TextInput, View } from 'react-native';
 import { TitleGrid } from '../../components/TitleGrid';
 import { FadeIn, Press } from '../../components/fx';
+import { FilterSheet } from '../../components/FilterSheet';
 import { Chip, Empty, H1, H2, Mu, Screen, Seg } from '../../components/ui';
 import { CATALOG } from '../../lib/catalog';
 import { useStore } from '../../lib/store';
@@ -21,6 +22,7 @@ export default function Catalogue() {
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState('');
   const [busy, setBusy] = useState('');
+  const [sheet, setSheet] = useState(false);
   const [gHits, setGHits] = useState<TmdbHit[]>([]);
   const [gLoading, setGLoading] = useState(false);
   const searching = q.trim().length >= 2;
@@ -103,10 +105,18 @@ export default function Catalogue() {
           accessibilityLabel="Chercher un film ou une série" style={{ flex: 1, minHeight: 48, color: C.tx, fontSize: 16 }} />
         {loading ? <ActivityIndicator color={C.mu} /> : null}
       </View>
-      <Seg options={['Tous', 'Séries', 'Films']} value={type} onChange={setType} />
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
-        {['Tous', ...GENRES].map((g) => <Chip key={g} label={g === 'Tous' ? 'Tous les genres' : g} on={genre === g} onPress={() => setGenre(g)} />)}
-      </ScrollView>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+        <View style={{ flexDirection: 'row', gap: 6, flex: 1 }}>
+          {['Tous', 'Séries', 'Films'].map((x) => <Chip key={x} label={x} small on={type === x} onPress={() => setType(x)} />)}
+        </View>
+        <Press onPress={() => setSheet(true)} accessibilityRole="button" accessibilityLabel={genre === 'Tous' ? 'Filtrer par genre' : `Genre : ${genre}`}
+          style={{ minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 16, borderRadius: 99, backgroundColor: genre === 'Tous' ? C.sf2 : C.ac }}>
+          <Ionicons name="options-outline" size={20} color={genre === 'Tous' ? C.tx : C.acfg} />
+          <Text style={{ color: genre === 'Tous' ? C.tx : C.acfg, fontWeight: '600', fontSize: 14 }}>{genre === 'Tous' ? 'Genre' : genre}</Text>
+        </Press>
+      </View>
+      <FilterSheet open={sheet} onClose={() => setSheet(false)} fields={[{ key: 'genre', label: 'Genre', options: ['Tous', ...GENRES].map((g) => [g, g === 'Tous' ? 'Tous les genres' : g] as [string, string]) }]}
+        value={{ genre }} defaults={{ genre: 'Tous' }} onApply={(v) => { setGenre(v.genre); setSheet(false); }} />
       {msg ? <Text style={{ color: C.rose, fontSize: 13 }}>{msg}</Text> : null}
 
       {searching ? grid(hits) : (
