@@ -5,6 +5,7 @@ import React, { useState } from 'react';
 import { Image, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { FeelPicker, Journal } from '../../components/Journal';
+import { Similar } from '../../components/Similar';
 import { Bar, Btn, Card, Chip, Chips, Field, H1, H2, Kv, Mu, Poster, Stepper, Switch } from '../../components/ui';
 import { cum, fmtDateInput, fmtDur, fmtH, pos, todayFr, total } from '../../lib/calc';
 import { BY, STATUSES, useStore, type Visibility } from '../../lib/store';
@@ -193,6 +194,7 @@ export default function Fiche() {
               </>
             );
           })()}
+          <Similar id={t.id} />
         </View>
       </ScrollView>
 

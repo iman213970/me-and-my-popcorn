@@ -7,7 +7,7 @@ import { FadeIn, Press } from '../../components/fx';
 import { Chip, Empty, H1, H2, Mu, Screen, Seg } from '../../components/ui';
 import { CATALOG } from '../../lib/catalog';
 import { useStore } from '../../lib/store';
-import { browseTmdb, posterUrl, searchTmdb, type TmdbHit } from '../../lib/tmdb';
+import { browseTmdb, discoverTmdb, posterUrl, searchTmdb, type TmdbHit } from '../../lib/tmdb';
 import { C, FONT_DISPLAY, FONT_DISPLAY_SEMI, SHADOW_SOFT } from '../../lib/theme';
 
 export default function Catalogue() {
@@ -21,6 +21,8 @@ export default function Catalogue() {
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState('');
   const [busy, setBusy] = useState('');
+  const [gHits, setGHits] = useState<TmdbHit[]>([]);
+  const [gLoading, setGLoading] = useState(false);
   const searching = q.trim().length >= 2;
 
   useEffect(() => {
@@ -40,6 +42,13 @@ export default function Catalogue() {
     }, 450);
     return () => { alive = false; clearTimeout(h); };
   }, [q]);
+
+  useEffect(() => {
+    if (genre === 'Tous') { setGHits([]); return; }
+    let alive = true; setGLoading(true);
+    discoverTmdb(genre, type).then((r) => { if (!alive) return; setGLoading(false); setGHits(r.hits); if (r.error) setMsg(r.error); });
+    return () => { alive = false; };
+  }, [genre, type]);
 
   const pick = async (h: TmdbHit) => {
     setBusy(`${h.kind}-${h.id}`); setMsg('');
@@ -95,17 +104,19 @@ export default function Catalogue() {
         {loading ? <ActivityIndicator color={C.mu} /> : null}
       </View>
       <Seg options={['Tous', 'Séries', 'Films']} value={type} onChange={setType} />
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
+        {['Tous', ...GENRES].map((g) => <Chip key={g} label={g === 'Tous' ? 'Tous les genres' : g} on={genre === g} onPress={() => setGenre(g)} />)}
+      </ScrollView>
       {msg ? <Text style={{ color: C.rose, fontSize: 13 }}>{msg}</Text> : null}
 
       {searching ? grid(hits) : (
         <>
-          {trend.length ? <><H2>Tendances sur TMDB</H2>{grid(trend)}</> : null}
+          {genre !== 'Tous' ? (
+            <><H2>{`Les plus populaires : ${genre}`}</H2>{gLoading ? <ActivityIndicator color={C.mu} /> : grid(gHits)}</>
+          ) : trend.length ? <><H2>Tendances sur TMDB</H2>{grid(trend)}</> : null}
           {ids.length ? (
             <>
               <H2>Déjà ouverts</H2>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
-                {['Tous', ...GENRES].map((g) => <Chip key={g} label={g} on={genre === g} onPress={() => setGenre(g)} />)}
-              </ScrollView>
               <TitleGrid ids={ids} badge={(id) => state.list[id] ? (
                 <View accessibilityLabel="Déjà dans ma liste" style={{ position: 'absolute', top: 6, right: 6, width: 28, height: 28, borderRadius: 14, backgroundColor: C.mint, alignItems: 'center', justifyContent: 'center' }}>
                   <Ionicons name="checkmark" size={16} color={C.acfg} />

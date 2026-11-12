@@ -12,6 +12,10 @@ async function call(body: object): Promise<Res> {
 }
 /** Cherche sur TMDB via la fonction Supabase (la clé TMDB n'est jamais dans l'appli). */
 export const searchTmdb = (q: string) => call({ action: 'search', q });
+/** Titres populaires d'un genre (type : Tous, Séries ou Films). */
+export const discoverTmdb = (genre: string, type: string) => call({ action: 'discover', genre, type });
+/** Recommandations pour un titre (id de l'appli, ex. tmdb-tv-123). */
+export const similarTmdb = (id: string) => call({ action: 'similar', id });
 /** Titres du moment sur TMDB. */
 export const browseTmdb = () => call({ action: 'browse' });
 /** Adresse d'une affiche TMDB (la taille w342 suffit pour les grilles). */

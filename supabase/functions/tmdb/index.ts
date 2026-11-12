@@ -98,6 +98,41 @@ Deno.serve(async (req) => {
         }));
       return json({ hits });
     }
+    if (body.action === 'discover') {
+      // Titres populaires d'un genre (séries et/ou films).
+      const genre = String(body.genre ?? '');
+      const type = String(body.type ?? 'Tous');
+      const ids = Object.entries(GENRES).filter(([, name]) => name === genre).map(([k]) => k);
+      const manga = genre === 'Manga';
+      if (!ids.length && !manga) return json({ hits: [] });
+      const common = { sort_by: 'popularity.desc', 'vote_count.gte': '150', include_adult: 'false' } as Record<string, string>;
+      const wants = type === 'Séries' ? ['tv'] : type === 'Films' ? ['movie'] : ['tv', 'movie'];
+      const lists = await Promise.all(wants.map(async (k) => {
+        const p: Record<string, string> = { ...common };
+        if (manga) { p.with_genres = '16'; p.with_original_language = 'ja'; } else p.with_genres = ids.join('|');
+        const r = await tmdb(`/discover/${k}`, p);
+        return (r.results ?? []).map((x: { id: number; title?: string; name?: string; release_date?: string; first_air_date?: string; overview?: string; poster_path?: string }) => ({
+          kind: k, id: x.id, title: x.title ?? x.name ?? '', year: (x.release_date ?? x.first_air_date ?? '').slice(0, 4),
+          overview: (x.overview ?? '').slice(0, 160), poster: x.poster_path ?? '',
+        }));
+      }));
+      const hits: unknown[] = [];
+      for (let i = 0; hits.length < 18 && lists.some((l) => i < l.length); i++) for (const l of lists) if (i < l.length && hits.length < 18) hits.push(l[i]);
+      return json({ hits });
+    }
+    if (body.action === 'similar') {
+      // Recommandations TMDB pour un titre de ta liste.
+      const m = /^tmdb-(tv|movie)-(\d+)$/.exec(String(body.id ?? ''));
+      if (!m) return json({ hits: [] });
+      let r = await tmdb(`/${m[1]}/${m[2]}/recommendations`);
+      if (!(r.results ?? []).length) r = await tmdb(`/${m[1]}/${m[2]}/similar`);
+      const hits = (r.results ?? []).filter((x: { poster_path?: string }) => x.poster_path).slice(0, 12)
+        .map((x: { id: number; title?: string; name?: string; release_date?: string; first_air_date?: string; overview?: string; poster_path?: string; media_type?: string }) => ({
+          kind: x.media_type === 'movie' || x.media_type === 'tv' ? x.media_type : m[1], id: x.id, title: x.title ?? x.name ?? '',
+          year: (x.release_date ?? x.first_air_date ?? '').slice(0, 4), overview: (x.overview ?? '').slice(0, 160), poster: x.poster_path ?? '',
+        }));
+      return json({ hits });
+    }
     if (body.action === 'import') {
       if (body.kind !== 'tv' && body.kind !== 'movie') return json({ error: 'Type inconnu' }, 400);
       const title = await build(body.kind, Number(body.id));
