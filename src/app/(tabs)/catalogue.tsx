@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import React, { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Image, ScrollView, Text, TextInput, View } from 'react-native';
 import { TitleGrid } from '../../components/TitleGrid';
@@ -26,6 +26,13 @@ export default function Catalogue() {
   const [gHits, setGHits] = useState<TmdbHit[]>([]);
   const [gLoading, setGLoading] = useState(false);
   const searching = q.trim().length >= 2;
+
+  // Quand on quitte l'onglet, on efface la recherche : plus de résidu de l'ancienne page au retour.
+  const opening = React.useRef(false);
+  useFocusEffect(React.useCallback(() => {
+    opening.current = false;
+    return () => { setBusy(''); if (opening.current) return; setQ(''); setHits([]); setLoading(false); setMsg(''); };
+  }, []));
 
   useEffect(() => {
     let alive = true;
@@ -57,6 +64,7 @@ export default function Catalogue() {
     try {
       const id = await importTmdb(h.kind, h.id);
       setBusy('');
+      opening.current = true;
       router.push(`/titre/${id}`);
     } catch (e) {
       setBusy('');
