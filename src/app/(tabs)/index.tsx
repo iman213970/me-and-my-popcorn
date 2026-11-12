@@ -8,6 +8,7 @@ import { FadeIn, Press } from '../../components/fx';
 import { TitleGrid } from '../../components/TitleGrid';
 import { Avatar, Bar, Btn, Card, Empty, H1, H2, Mu, Poster, Screen, Stars } from '../../components/ui';
 import { dateKey, fmtDur, fmtLong, pos, total } from '../../lib/calc';
+import { useSorties, whenFr, dateFr, type Sortie } from '../../lib/releases';
 import { BY, useStore } from '../../lib/store';
 import { C, FONT_DISPLAY, FONT_DISPLAY_SEMI, SHADOW, SHADOW_SOFT } from '../../lib/theme';
 
@@ -41,6 +42,7 @@ export default function Accueil() {
   const films = ids.filter((id) => BY[id].type === 'Film' && state.list[id].watched > 0).length;
   const nDone = ids.filter((id) => state.list[id].status === 'Terminé').length;
   const hero = enCours.slice().sort((a, b) => state.list[b].watched / total(BY[b]) - state.list[a].watched / total(BY[a]))[0] ?? best[0] ?? aVoir[0];
+  const sorties = useSorties(ids);
   const g = greeting(state.prefs.pseudo, enCours.length, nDone);
 
   const heroCard = () => {
@@ -127,6 +129,14 @@ export default function Accueil() {
         ) : <Empty art="reel" title="Rien en cours">Lance une série, elle apparaîtra ici avec son bouton +1.</Empty>}
       </View>
 
+      {sorties.upcoming.length || sorties.recent.length ? (
+        <View style={{ gap: 12 }}>
+          <H2>Sorties</H2>
+          {sorties.upcoming.length ? <SortieList title="Prochaines sorties" icon="calendar-outline" list={sorties.upcoming} /> : null}
+          {sorties.recent.length ? <SortieList title="Sorties récentes" icon="sparkles-outline" list={sorties.recent} /> : null}
+        </View>
+      ) : null}
+
       {lastDone ? (
         <View style={{ gap: 12 }}>
           <H2>Dernier terminé</H2>
@@ -189,5 +199,34 @@ function Tile({ icon, label, value, down }: { icon: keyof typeof Ionicons.glyphM
       <Text style={{ color: C.tx, fontSize: 34, fontFamily: FONT_DISPLAY }}>{value}</Text>
       <Mu size={12}>{label}</Mu>
     </View>
+  );
+}
+
+function SortieList({ title, icon, list }: { title: string; icon: keyof typeof Ionicons.glyphMap; list: Sortie[] }) {
+  return (
+    <Card style={{ gap: 12 }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+        <Ionicons name={icon} size={18} color={C.gold} />
+        <Text style={{ color: C.gold, fontWeight: '700', fontSize: 13, letterSpacing: 1 }}>{title.toUpperCase()}</Text>
+      </View>
+      {list.map((x) => {
+        const t = BY[x.id];
+        if (!t) return null;
+        return (
+          <Press key={x.id + x.date} onPress={() => router.push(`/titre/${x.id}`)} accessibilityRole="button" accessibilityLabel={`${t.title}, ${x.label}, ${whenFr(x.days)}`}
+            style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }} down={0.97}>
+            <View style={{ width: 46 }}><Poster t={t} rounded={12} shadow={false} /></View>
+            <View style={{ flex: 1, gap: 2 }}>
+              <Text numberOfLines={1} style={{ color: C.tx, fontFamily: FONT_DISPLAY_SEMI, fontSize: 16 }}>{t.title}</Text>
+              <Mu size={13}>{x.label}</Mu>
+              <Mu size={12}>{dateFr(x.date)}</Mu>
+            </View>
+            <View style={{ backgroundColor: x.days >= 0 ? 'rgba(139,124,255,0.2)' : C.sf2, borderRadius: 99, paddingHorizontal: 12, paddingVertical: 6 }}>
+              <Text style={{ color: x.days >= 0 ? C.ac : C.mu, fontWeight: '700', fontSize: 12 }}>{whenFr(x.days)}</Text>
+            </View>
+          </Press>
+        );
+      })}
+    </Card>
   );
 }

@@ -16,3 +16,12 @@ export const searchTmdb = (q: string) => call({ action: 'search', q });
 export const browseTmdb = () => call({ action: 'browse' });
 /** Adresse d'une affiche TMDB (la taille w342 suffit pour les grilles). */
 export const posterUrl = (path: string, size: 'w342' | 'w500' = 'w342') => `https://image.tmdb.org/t/p/${size}${path}`;
+
+export type Release = { id: string; kind: string; next: { date: string; season: number; episode: number } | null; last: { date: string; season: number; episode: number } | null; date?: string };
+/** Dates de sortie (épisode à venir, dernier épisode, film) pour des titres de ta liste. */
+export async function fetchReleases(ids: string[]): Promise<Release[] | null> {
+  const { data, error } = await supabase.functions.invoke(TMDB_FUNCTION, { body: { action: 'releases', ids } });
+  if (error) return null;
+  const r = (data as { releases?: Release[] })?.releases;
+  return Array.isArray(r) ? r : null;
+}

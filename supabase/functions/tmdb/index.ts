@@ -106,6 +106,23 @@ Deno.serve(async (req) => {
       if (error) return json({ error: error.message }, 500);
       return json({ title });
     }
+    if (body.action === 'releases') {
+      // Dates de sortie (prochaine / dernière) pour les titres de ta liste.
+      const ids: string[] = (Array.isArray(body.ids) ? body.ids : []).map(String).filter((x: string) => /^tmdb-(tv|movie)-\d+$/.test(x)).slice(0, 40);
+      const out = await Promise.all(ids.map(async (id) => {
+        const [, kind, n] = id.split('-');
+        try {
+          if (kind === 'tv') {
+            const d = await tmdb(`/tv/${n}`);
+            const pick = (e: { air_date?: string; season_number?: number; episode_number?: number } | null) => e?.air_date ? { date: e.air_date, season: e.season_number ?? 0, episode: e.episode_number ?? 0 } : null;
+            return { id, kind, next: pick(d.next_episode_to_air), last: pick(d.last_episode_to_air) };
+          }
+          const d = await tmdb(`/movie/${n}`);
+          return { id, kind, next: null, last: null, date: d.release_date || '' };
+        } catch { return { id, kind, next: null, last: null }; }
+      }));
+      return json({ releases: out });
+    }
     return json({ error: 'Action inconnue' }, 400);
   } catch (e) {
     return json({ error: e instanceof Error ? e.message : 'Erreur' }, 500);
