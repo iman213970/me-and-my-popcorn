@@ -5,7 +5,7 @@ import { Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View, type S
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { Title } from '../lib/catalog';
 import { posterUrl } from '../lib/tmdb';
-import { C, FONT_DISPLAY, FONT_DISPLAY_SEMI, SHADOW, SHADOW_SOFT, STATUS_COLORS, statusLabel } from '../lib/theme';
+import { C, GLOW, SIG, FONT_DISPLAY, FONT_DISPLAY_SEMI, SHADOW, SHADOW_SOFT, STATUS_COLORS, statusLabel } from '../lib/theme';
 import { Press } from './fx';
 import { ClapArt, PopcornArt, ReelArt, TicketArt } from './Cine';
 
@@ -21,7 +21,12 @@ export function Screen({ children, bottomPad = 120 }: { children: React.ReactNod
 }
 
 export const H1 = ({ children }: { children: React.ReactNode }) => <Text style={s.h1} accessibilityRole="header">{children}</Text>;
-export const H2 = ({ children }: { children: React.ReactNode }) => <Text style={s.h2} accessibilityRole="header">{children}</Text>;
+export const H2 = ({ children }: { children: React.ReactNode }) => (
+  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 9 }}>
+    <View style={{ width: 5, height: 20, borderRadius: 3, backgroundColor: C.vio, boxShadow: '0px 0px 12px rgba(194,107,255,0.7)' }} />
+    <Text style={s.h2} accessibilityRole="header">{children}</Text>
+  </View>
+);
 export const Mu = ({ children, size = 13, style }: { children: React.ReactNode; size?: number; style?: object }) => <Text style={[{ color: C.mu, fontSize: size, lineHeight: size * 1.4 }, style]}>{children}</Text>;
 
 export function Card({ children, style }: { children: React.ReactNode; style?: StyleProp<ViewStyle> }) {
@@ -61,8 +66,8 @@ export function Pill({ status }: { status: string }) {
 export function Chip({ label, on, onPress, small }: { label: string; on?: boolean; onPress: () => void; small?: boolean }) {
   return (
     <Press onPress={onPress} accessibilityRole="button" accessibilityState={{ selected: !!on }} down={0.93} zoom={1.04}
-      style={[s.chip, on && { backgroundColor: C.ac, boxShadow: SHADOW_SOFT }, small && { paddingHorizontal: 14 }]}>
-      <Text style={{ color: on ? C.acfg : C.tx, fontWeight: on ? '700' : '500', fontSize: 14 }}>{label}</Text>
+      style={[s.chip, on && { backgroundColor: C.ac, boxShadow: GLOW }, small && { paddingHorizontal: 14 }]}>
+      <Text style={{ color: on ? '#fff' : C.tx, fontWeight: on ? '700' : '500', fontSize: 14 }}>{label}</Text>
     </Press>
   );
 }
@@ -73,8 +78,8 @@ export function Seg({ options, value, onChange }: { options: string[]; value: st
     <View style={s.seg} accessibilityRole="tablist">
       {options.map((o) => (
         <Press key={o} onPress={() => onChange(o)} accessibilityRole="tab" accessibilityState={{ selected: value === o }} down={0.96} zoom={1.02}
-          style={[s.segBtn, value === o && { backgroundColor: C.ac, boxShadow: SHADOW_SOFT }]}>
-          <Text style={{ color: value === o ? C.acfg : C.tx, fontWeight: value === o ? '700' : '500', fontSize: 14 }}>{o}</Text>
+          style={[s.segBtn, value === o && { backgroundColor: C.ac, boxShadow: GLOW }]}>
+          <Text style={{ color: value === o ? '#fff' : C.tx, fontWeight: value === o ? '700' : '500', fontSize: 14 }}>{o}</Text>
         </Press>
       ))}
     </View>
@@ -82,13 +87,21 @@ export function Seg({ options, value, onChange }: { options: string[]; value: st
 }
 
 export function Btn({ label, onPress, kind = 'main', icon, disabled }: { label: string; onPress: () => void; kind?: 'main' | 'alt' | 'danger' | 'on'; icon?: keyof typeof Ionicons.glyphMap; disabled?: boolean }) {
-  const bg = kind === 'main' ? C.ac : kind === 'alt' ? C.sf2 : kind === 'danger' ? '#3A1D24' : '#1F3326';
-  const fg = kind === 'main' ? C.acfg : kind === 'alt' ? C.tx : kind === 'danger' ? C.rose : C.mint;
-  return (
-    <Press onPress={onPress} disabled={disabled} accessibilityRole="button" accessibilityLabel={label}
-      style={[{ minHeight: 52, borderRadius: 99, backgroundColor: bg, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8, paddingHorizontal: 22, opacity: disabled ? 0.4 : 1 }, kind === 'main' && { boxShadow: '0px 8px 20px rgba(139,124,255,0.35)' }]}>
+  const bg = kind === 'alt' ? C.sf2 : kind === 'danger' ? '#3A1D24' : '#1F3326';
+  const fg = kind === 'main' ? '#fff' : kind === 'alt' ? C.tx : kind === 'danger' ? C.rose : C.mint;
+  const inner = (
+    <>
       {icon ? <Ionicons name={icon} size={20} color={fg} /> : null}
       <Text style={{ color: fg, fontWeight: '700', fontSize: 16 }}>{label}</Text>
+    </>
+  );
+  const box = { minHeight: 52, borderRadius: 99, alignItems: 'center' as const, justifyContent: 'center' as const, flexDirection: 'row' as const, gap: 8, paddingHorizontal: 22 };
+  return (
+    <Press onPress={onPress} disabled={disabled} accessibilityRole="button" accessibilityLabel={label}
+      style={[{ opacity: disabled ? 0.4 : 1, borderRadius: 99 }, kind === 'main' && { boxShadow: '0px 8px 22px rgba(194,107,255,0.45)' }]}>
+      {kind === 'main'
+        ? <LinearGradient colors={SIG} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={box}>{inner}</LinearGradient>
+        : <View style={[box, { backgroundColor: bg }]}>{inner}</View>}
     </Press>
   );
 }
@@ -119,8 +132,8 @@ export function Bar({ pct, gold }: { pct: number; gold?: boolean }) {
   const p = Math.max(0, Math.min(100, pct));
   return (
     <View style={{ flex: 1, height: 12, borderRadius: 99, backgroundColor: C.sf2, overflow: 'hidden' }}>
-      <LinearGradient colors={gold ? [C.gold, '#FFD98A'] : [C.wine, C.ac, C.gold]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
-        style={{ width: `${p}%`, height: '100%', borderRadius: 99 }} />
+      <LinearGradient colors={gold ? [C.gold, '#FFD98A'] : SIG} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
+        style={{ width: `${p}%`, height: '100%', borderRadius: 99, boxShadow: gold ? undefined : '0px 0px 10px rgba(194,107,255,0.7)' }} />
     </View>
   );
 }

@@ -6,7 +6,11 @@ export const C = {
   line: '#2E2E45',
   tx: '#F5EFE6',
   mu: '#A3A2BC',
-  ac: '#8B7CFF',
+  ac: '#9B7BFF',
+  vio: '#C26BFF',
+  pink: '#FF6FB5',
+  cyan: '#4FE0F0',
+  mag: '#FF4FD8',
   acfg: '#12121C',
   wine: '#4A3AA8',
   gold: '#F0B84F',
@@ -28,3 +32,7 @@ export const STATUS_COLORS: Record<string, [string, string]> = {
 /** Nom affiché d'un statut (la donnée reste « Terminé »). */
 export const STATUS_LABEL: Record<string, string> = { 'Terminé': 'Vu' };
 export const statusLabel = (s: string) => STATUS_LABEL[s] ?? s;
+
+/** Dégradé signature violet vers rose. */
+export const SIG: [string, string, string] = ['#8B6BFF', '#C26BFF', '#FF6FB5'];
+export const GLOW = '0px 0px 22px rgba(194,107,255,0.5)';

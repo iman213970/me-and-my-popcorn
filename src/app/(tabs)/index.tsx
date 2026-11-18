@@ -10,7 +10,7 @@ import { Avatar, Bar, Btn, Card, Empty, H1, H2, Mu, Poster, Screen, Stars } from
 import { dateKey, fmtDur, fmtLong, pos, total } from '../../lib/calc';
 import { useSorties, whenFr, dateFr, type Sortie } from '../../lib/releases';
 import { BY, useStore } from '../../lib/store';
-import { C, FONT_DISPLAY, FONT_DISPLAY_SEMI, SHADOW, SHADOW_SOFT } from '../../lib/theme';
+import { C, FONT_DISPLAY, FONT_DISPLAY_SEMI, SHADOW, SHADOW_SOFT, SIG } from '../../lib/theme';
 
 function greeting(name: string, nCours: number, nDone: number) {
   const h = new Date().getHours();
@@ -24,7 +24,7 @@ function greeting(name: string, nCours: number, nDone: number) {
 
 export default function Accueil() {
   const { state, setWatched } = useStore();
-  const ids = Object.keys(state.list);
+  const ids = Object.keys(state.list).filter((id) => state.list[id].status !== 'Abandonné'); // l'accueil ignore les abandonnés
   let tot = 0, seen = 0;
   ids.forEach((id) => { const t = BY[id], e = state.list[id]; tot += total(t) * t.dur; seen += e.watched * t.dur; });
   const rest = tot - seen, pct = tot ? Math.round((seen / tot) * 100) : 0;
@@ -56,8 +56,8 @@ export default function Accueil() {
     const film = t.type === 'Film', going = e.status === 'En cours';
     return (
       <Press onPress={() => router.push(`/titre/${hero}`)} accessibilityRole="button" accessibilityLabel={`Ouvrir ${t.title}`} zoom={1.01} down={0.98}>
-        <LinearGradient colors={[C.wine, '#241C4D', C.sf]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
-          style={{ borderRadius: 36, padding: 18, flexDirection: 'row', gap: 16, alignItems: 'center', overflow: 'hidden', boxShadow: SHADOW }}>
+        <LinearGradient colors={['#4A3AA8', '#8A3FD0', '#C2457F']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+          style={{ borderRadius: 36, padding: 18, flexDirection: 'row', gap: 16, alignItems: 'center', overflow: 'hidden', boxShadow: '0px 18px 40px rgba(0,0,0,0.5), 0px 0px 34px rgba(194,107,255,0.35)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)' }}>
           <View style={{ position: 'absolute', right: -34, top: -34 }}><ReelArt size={150} opacity={0.14} /></View>
           <View style={{ width: 118, transform: [{ rotate: '-4deg' }] }}><Poster t={t} rounded={24} /></View>
           <View style={{ flex: 1, gap: 8 }}>
@@ -91,7 +91,7 @@ export default function Accueil() {
       </FadeIn>
 
       <FadeIn delay={200}>
-        <LinearGradient colors={['#2A1319', C.sf]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ borderRadius: 32, padding: 20, gap: 12, boxShadow: SHADOW_SOFT }}>
+        <LinearGradient colors={['#3A2570', '#4B2466', C.sf]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ borderRadius: 32, padding: 20, gap: 12, boxShadow: SHADOW_SOFT }}>
           <Mu>Temps de visionnage total</Mu>
           <Text style={{ color: C.gold, fontSize: 30, fontFamily: FONT_DISPLAY }}>{fmtLong(tot)}</Text>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}><Bar pct={pct} gold /><Mu size={12}>{pct} %</Mu></View>
@@ -118,9 +118,11 @@ export default function Accueil() {
                     {film ? null : <Bar pct={(e.watched / tt) * 100} />}
                   </Press>
                   <Press onPress={() => setWatched(id, e.watched + 1)} accessibilityRole="button" accessibilityLabel={film ? `Marquer ${t.title} comme vu` : `Ajouter un épisode à ${t.title}`}
-                    style={{ marginTop: 10, height: 44, borderRadius: 99, backgroundColor: C.ac, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 6, boxShadow: '0px 6px 16px rgba(139,124,255,0.35)' }}>
-                    <Ionicons name={film ? 'checkmark' : 'add'} size={18} color={C.acfg} />
-                    <Text style={{ color: C.acfg, fontWeight: '700', fontSize: 14 }}>{film ? 'Vu' : '+1 épisode'}</Text>
+                    style={{ marginTop: 10, borderRadius: 99, boxShadow: '0px 6px 18px rgba(194,107,255,0.45)' }}>
+                    <LinearGradient colors={SIG} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ height: 44, borderRadius: 99, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 6 }}>
+                      <Ionicons name={film ? 'checkmark' : 'add'} size={18} color="#fff" />
+                      <Text style={{ color: '#fff', fontWeight: '700', fontSize: 14 }}>{film ? 'Vu' : '+1 épisode'}</Text>
+                    </LinearGradient>
                   </Press>
                 </FadeIn>
               );

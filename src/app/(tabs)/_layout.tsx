@@ -2,11 +2,13 @@ import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
 import { View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { C, SHADOW } from '../../lib/theme';
+import { LinearGradient } from 'expo-linear-gradient';
+import { C, GLOW, SHADOW, SIG } from '../../lib/theme';
 
 const icon = (name: keyof typeof Ionicons.glyphMap, on: keyof typeof Ionicons.glyphMap) => ({ color, focused }: { color: any; focused: boolean }) => (
-  <View style={{ width: 46, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center', backgroundColor: focused ? 'rgba(139,124,255,0.2)' : 'transparent' }}>
-    <Ionicons name={focused ? on : name} size={21} color={color} />
+  <View style={{ width: 50, height: 32, borderRadius: 16, overflow: 'hidden', alignItems: 'center', justifyContent: 'center', boxShadow: focused ? GLOW : undefined }}>
+    {focused ? <LinearGradient colors={SIG} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }} /> : null}
+    <Ionicons name={focused ? on : name} size={21} color={focused ? '#fff' : color} />
   </View>
 );
 
