@@ -10,6 +10,7 @@ import { Avatar, Bar, Btn, Card, Empty, H1, H2, Mu, Poster, Screen, Stars } from
 import { dateKey, fmtDur, fmtLong, pos, total } from '../../lib/calc';
 import { useSorties, whenFr, dateFr, type Sortie } from '../../lib/releases';
 import { BY, useStore } from '../../lib/store';
+import { usePlaylists } from '../../lib/playlists';
 import { C, FONT_DISPLAY, FONT_DISPLAY_SEMI, SHADOW, SHADOW_SOFT, SIG } from '../../lib/theme';
 
 function greeting(name: string, nCours: number, nDone: number) {
@@ -25,8 +26,13 @@ function greeting(name: string, nCours: number, nDone: number) {
 export default function Accueil() {
   const { state, setWatched } = useStore();
   const ids = Object.keys(state.list).filter((id) => state.list[id].status !== 'Abandonné'); // l'accueil ignore les abandonnés
+  const { playlists } = usePlaylists();
+  const uniq = (l: string[]) => Array.from(new Set(l)).filter((x) => BY[x]);
+  const timeSel = playlists.filter((p) => p.inTime), relSel = playlists.filter((p) => p.inReleases);
+  const timeIds = timeSel.length ? uniq(timeSel.flatMap((p) => p.items)) : ids;
+  const relIds = relSel.length ? uniq(relSel.flatMap((p) => p.items)) : ids;
   let tot = 0, seen = 0;
-  ids.forEach((id) => { const t = BY[id], e = state.list[id]; tot += total(t) * t.dur; seen += e.watched * t.dur; });
+  timeIds.forEach((id) => { const t = BY[id], w = state.list[id]?.watched ?? 0; tot += total(t) * t.dur; seen += Math.min(w, total(t)) * t.dur; });
   const rest = tot - seen, pct = tot ? Math.round((seen / tot) * 100) : 0;
   const enCours = ids.filter((id) => state.list[id].status === 'En cours');
   const best = ids.filter((id) => state.list[id].note > 0).sort((a, b) => state.list[b].note - state.list[a].note).slice(0, 6);
@@ -42,7 +48,7 @@ export default function Accueil() {
   const films = ids.filter((id) => BY[id].type === 'Film' && state.list[id].watched > 0).length;
   const nDone = ids.filter((id) => state.list[id].status === 'Terminé').length;
   const hero = enCours.slice().sort((a, b) => state.list[b].watched / total(BY[b]) - state.list[a].watched / total(BY[a]))[0] ?? best[0] ?? aVoir[0];
-  const sorties = useSorties(ids);
+  const sorties = useSorties(relIds);
   const g = greeting(state.prefs.pseudo, enCours.length, nDone);
 
   const heroCard = () => {
@@ -92,14 +98,14 @@ export default function Accueil() {
 
       <FadeIn delay={200}>
         <LinearGradient colors={['#3A2570', '#4B2466', C.sf]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ borderRadius: 32, padding: 20, gap: 12, boxShadow: SHADOW_SOFT }}>
-          <Mu>Temps de visionnage total</Mu>
+          <Mu>{timeSel.length ? 'Temps restant sur tes playlists' : 'Temps de visionnage total'}</Mu>
           <Text style={{ color: C.gold, fontSize: 30, fontFamily: FONT_DISPLAY }}>{fmtLong(tot)}</Text>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}><Bar pct={pct} gold /><Mu size={12}>{pct} %</Mu></View>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
             <Text style={{ color: C.mu, fontSize: 13 }}>Regardé <Text style={{ color: C.tx, fontWeight: '700' }}>{fmtLong(seen)}</Text></Text>
             <Text style={{ color: C.mu, fontSize: 13 }}>Restant <Text style={{ color: C.tx, fontWeight: '700' }}>{fmtLong(rest)}</Text></Text>
           </View>
-          <Mu size={12}>Calcul : épisodes × durée moyenne d'un épisode, pour chaque titre de ta liste.</Mu>
+          <Mu size={12}>{timeSel.length ? `Playlists comptées : ${timeSel.map((p) => p.name).join(', ')}. ` : ''}Calcul : épisodes × durée moyenne d'un épisode{timeSel.length ? ' pour chaque titre de ces playlists.' : ', pour chaque titre de ta liste.'}</Mu>
         </LinearGradient>
       </FadeIn>
 

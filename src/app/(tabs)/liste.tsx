@@ -2,7 +2,8 @@ import { Ionicons } from '@expo/vector-icons';
 import React, { useMemo, useState } from 'react';
 import { Modal, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { TitleGrid } from '../../components/TitleGrid';
-import { Btn, Chip, Empty, H1, Pill, Screen, Stars } from '../../components/ui';
+import { PlaylistsView } from '../../components/PlaylistsView';
+import { Btn, Chip, Empty, H1, Pill, Screen, Seg, Stars } from '../../components/ui';
 import { BY, STATUSES, useStore } from '../../lib/store';
 import { C, FONT_DISPLAY, SHADOW_SOFT, statusLabel } from '../../lib/theme';
 
@@ -14,6 +15,7 @@ export default function MaListe() {
   const [kind, setKind] = useState('Tous');
   const [st, setSt] = useState('Tous');
   const [more, setMore] = useState(false);
+  const [tab, setTab] = useState('Titres');
   const all = Object.keys(state.list);
   const nActive = (st !== 'Tous' ? 1 : 0) + (genre !== 'Tous' ? 1 : 0) + (sort !== 'Ajout' ? 1 : 0);
   const used = Array.from(new Set(all.map((id) => BY[id].genre))).sort();
@@ -33,6 +35,8 @@ export default function MaListe() {
           <Text style={{ color: C.tx, fontSize: 13 }}>{all.length} titre{all.length > 1 ? 's' : ''}</Text>
         </View>
       </View>
+      <Seg options={['Titres', 'Playlists']} value={tab} onChange={setTab} />
+      {tab === 'Playlists' ? <PlaylistsView /> : <>
       <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: C.sf, borderRadius: 99, paddingHorizontal: 18, gap: 10, boxShadow: SHADOW_SOFT }}>
         <Ionicons name="search" size={20} color={C.mu} />
         <TextInput value={q} onChangeText={setQ} placeholder="Chercher dans ma liste" placeholderTextColor="#6B6A85"
@@ -74,6 +78,7 @@ export default function MaListe() {
           extra={(id) => <><Text numberOfLines={1} style={{ color: C.mu, fontSize: 12 }}>{BY[id].genre}</Text><Pill status={state.list[id].status} /></>} />
       ) : all.length ? <Empty art="reel" title="Rien ne correspond">Essaie d'enlever un filtre ou de changer ta recherche.</Empty>
         : <Empty art="ticket" title="Ta bibliothèque est vide">Va dans le catalogue, cherche un film ou une série et ajoute-le. Le pop-corn t'attend 🍿</Empty>}
+      </>}
     </Screen>
   );
 }

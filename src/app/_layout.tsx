@@ -4,6 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import { ActivityIndicator, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { FlashHost } from '../components/fx';
+import { PlaylistsProvider } from '../lib/playlists';
 import { StoreProvider, useStore } from '../lib/store';
 import { C } from '../lib/theme';
 
@@ -16,6 +17,7 @@ function Routes() {
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="titre/[id]" />
         <Stack.Screen name="ami/[id]" />
+        <Stack.Screen name="playlist/[id]" />
       </Stack.Protected>
       <Stack.Protected guard={!session}>
         <Stack.Screen name="connexion" />
@@ -30,9 +32,11 @@ export default function Root() {
   return (
     <SafeAreaProvider>
       <StoreProvider>
-        <StatusBar style="light" />
-        <Routes />
-        <FlashHost />
+        <PlaylistsProvider>
+          <StatusBar style="light" />
+          <Routes />
+          <FlashHost />
+        </PlaylistsProvider>
       </StoreProvider>
     </SafeAreaProvider>
   );
