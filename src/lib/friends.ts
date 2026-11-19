@@ -57,3 +57,17 @@ export async function friendEntries(id: string): Promise<FriendEntry[]> {
   if (error) throw error;
   return (data ?? []) as FriendEntry[];
 }
+
+export type FriendNote = { id: string; title_id: string; season: number; episode: number; body: string; feel: string[] | null; visible: boolean; created_at: string };
+/** Commentaires du journal qu'un ami a partagés (Amis ou Public). Le texte reste vide tant que je n'ai pas atteint l'épisode. */
+export async function friendNotes(id: string): Promise<FriendNote[]> {
+  const { data, error } = await supabase.rpc('friend_notes', { friend: id });
+  if (error) throw error;
+  return (data ?? []) as FriendNote[];
+}
+/** Playlists que je partage avec cet ami. */
+export async function sharedPlaylists(id: string): Promise<{ id: string; name: string }[]> {
+  const { data, error } = await supabase.rpc('shared_playlists_with', { friend: id });
+  if (error) throw error;
+  return (data ?? []) as { id: string; name: string }[];
+}

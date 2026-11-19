@@ -6,7 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { TitleGrid } from '../../components/TitleGrid';
 import { Avatar, Btn, Card, H1, H2, Mu } from '../../components/ui';
 import { fmtLong } from '../../lib/calc';
-import { friendEntries, loadLinks, loadPerson, removeLink, type FriendEntry, type Person } from '../../lib/friends';
+import { friendEntries, friendNotes, loadLinks, loadPerson, removeLink, sharedPlaylists, type FriendEntry, type FriendNote, type Person } from '../../lib/friends';
 import { BY, useStore } from '../../lib/store';
 import { C } from '../../lib/theme';
 
@@ -16,6 +16,8 @@ export default function Ami() {
   const [person, setPerson] = useState<Person | null>(null);
   const [rows, setRows] = useState<FriendEntry[]>([]);
   const [msg, setMsg] = useState('');
+  const [shared, setShared] = useState<{ id: string; name: string }[]>([]);
+  const [notes, setNotes] = useState<FriendNote[]>([]);
   const [confirm, setConfirm] = useState(false);
   const back = () => (router.canGoBack() ? router.back() : router.replace('/amis'));
 
@@ -25,6 +27,9 @@ export default function Ami() {
       try {
         const [p, e] = await Promise.all([loadPerson(String(id)), friendEntries(String(id))]);
         if (!alive) return; setPerson(p); setRows(e);
+        // Playlists en commun et commentaires partagés : sans bloquer la page si la migration n'est pas encore faite.
+        const [sp, fn] = await Promise.all([sharedPlaylists(String(id)).catch(() => []), friendNotes(String(id)).catch(() => [])]);
+        if (alive) { setShared(sp); setNotes(fn); }
       } catch (e) { if (alive) setMsg(e instanceof Error ? e.message : 'Erreur'); }
     })();
     return () => { alive = false; };
@@ -66,6 +71,17 @@ export default function Ami() {
                 <View style={{ flex: 1, backgroundColor: C.sf, borderRadius: 28, padding: 16, gap: 6 }}><Mu size={12}>Temps regardé</Mu><Text style={{ color: C.tx, fontSize: 18, fontWeight: '700' }}>{fmtLong(seen)}</Text></View>
                 <View style={{ flex: 1, backgroundColor: C.sf, borderRadius: 28, padding: 16, gap: 6 }}><Mu size={12}>Titres</Mu><Text style={{ color: C.tx, fontSize: 28, fontWeight: '700' }}>{all.length}</Text></View>
               </View>
+              <View style={{ gap: 12 }}>
+                <H2>Playlists en commun</H2>
+                {shared.length ? shared.map((pl) => (
+                  <Pressable key={pl.id} onPress={() => router.push(`/playlist/${pl.id}`)} accessibilityRole="button" accessibilityLabel={`Ouvrir la playlist ${pl.name}`}
+                    style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: C.sf, borderRadius: 24, padding: 14, borderWidth: 1, borderColor: 'rgba(79,224,240,0.35)' }}>
+                    <Ionicons name="albums-outline" size={22} color={C.cyan} />
+                    <Text style={{ flex: 1, color: C.tx, fontWeight: '700', fontSize: 16 }}>{pl.name}</Text>
+                    <Ionicons name="chevron-forward" size={20} color={C.mu} />
+                  </Pressable>
+                )) : <Mu>Aucune playlist en commun. Crée une playlist dans Ma liste et invite {person.pseudo || 'cette personne'}.</Mu>}
+              </View>
               {favs.length ? <View style={{ gap: 12 }}><H2>Ses favoris</H2><TitleGrid ids={favs} above={(t) => stars(byId(t).note)} /></View> : null}
               <View style={{ gap: 12 }}>
                 <H2>Toute sa liste</H2>
@@ -86,6 +102,22 @@ export default function Ami() {
                       {r.cit ? <Mu>Citation : {r.cit}</Mu> : null}
                       {r.perso ? <Mu>Personnage préféré : {r.perso}</Mu> : null}
                       {r.moment ? <Mu>Moment préféré : {r.moment}</Mu> : null}
+                    </Card>
+                  ))}
+                </View>
+              ) : null}
+              {notes.filter((n) => BY[n.title_id]).length ? (
+                <View style={{ gap: 12 }}>
+                  <H2>Ses commentaires</H2>
+                  {notes.filter((n) => BY[n.title_id]).map((n) => (
+                    <Card key={n.id}>
+                      <Text style={{ color: C.tx, fontWeight: '700', fontSize: 15 }}>{BY[n.title_id].title} <Text style={{ color: C.ac, fontSize: 13 }}>{n.season ? ` · S${n.season} E${n.episode}` : ' · Film'}</Text></Text>
+                      {n.visible ? (
+                        <>
+                          {n.feel?.length ? <Text style={{ fontSize: 20 }}>{n.feel.join(' ')}</Text> : null}
+                          {n.body ? <Text style={{ color: C.soft, fontSize: 15, lineHeight: 21 }}>{n.body}</Text> : null}
+                        </>
+                      ) : <Mu>🔒 Un commentaire t'attend {n.season ? `à la saison ${n.season}, épisode ${n.episode}` : 'quand tu auras vu le film'}.</Mu>}
                     </Card>
                   ))}
                 </View>

@@ -14,7 +14,7 @@ export type Entry = {
   status: Status; watched: number; start: string; end: string; plat: string; fav: boolean;
   note: number; avis: string; cit: string; perso: string; moment: string; vis: Visibility; feel: string[];
 };
-export type Note = { id: string; title_id: string; season: number; episode: number; body: string; feel: string[]; created_at: string };
+export type Note = { id: string; title_id: string; season: number; episode: number; body: string; feel: string[]; created_at: string; vis?: Visibility };
 export type Prefs = {
   avatar: number; pseudo: string; bio: string; pub: boolean;
   genres: string[]; plats: string[]; customPlats: string[];
@@ -53,8 +53,8 @@ type Ctx = {
   patchPrefs: (p: Partial<Prefs>) => void;
   importTmdb: (kind: 'tv' | 'movie', tmdbId: number) => Promise<string>;
   notes: Note[];
-  addNote: (titleId: string, season: number, episode: number, body: string, feel: string[]) => Promise<void>;
-  updateNote: (id: string, body: string, feel: string[]) => Promise<void>;
+  addNote: (titleId: string, season: number, episode: number, body: string, feel: string[], vis?: Visibility) => Promise<void>;
+  updateNote: (id: string, body: string, feel: string[], vis?: Visibility) => Promise<void>;
   removeNote: (id: string) => Promise<void>;
   clearList: () => Promise<void>;
   signOut: () => Promise<void>;
@@ -194,15 +194,16 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     return t.id;
   }, []);
 
-  const addNote = useCallback(async (titleId: string, season: number, episode: number, body: string, feel: string[]) => {
+  const addNote = useCallback(async (titleId: string, season: number, episode: number, body: string, feel: string[], vis: Visibility = 'Moi') => {
     const u = uid.current; if (!u) return;
-    const { data, error } = await supabase.from('episode_notes').insert({ user_id: u, title_id: titleId, season, episode, body, feel }).select().single();
+    // « vis » n'est envoyé que s'il n'est pas « Moi » : l'appli reste compatible tant que la migration n'est pas faite.
+    const { data, error } = await supabase.from('episode_notes').insert({ user_id: u, title_id: titleId, season, episode, body, feel, ...(vis !== 'Moi' ? { vis } : {}) }).select().single();
     if (error) { fail(error); return; }
     setNotes((l) => [...l, data as Note]); setSyncError('');
   }, [fail]);
 
-  const updateNote = useCallback(async (id: string, body: string, feel: string[]) => {
-    const { data, error } = await supabase.from('episode_notes').update({ body, feel }).eq('id', id).select().single();
+  const updateNote = useCallback(async (id: string, body: string, feel: string[], vis?: Visibility) => {
+    const { data, error } = await supabase.from('episode_notes').update({ body, feel, ...(vis ? { vis } : {}) }).eq('id', id).select().single();
     if (error) { fail(error); return; }
     setNotes((l) => l.map((x) => (x.id === id ? (data as Note) : x))); setSyncError('');
   }, [fail]);

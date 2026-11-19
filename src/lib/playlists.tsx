@@ -10,7 +10,8 @@ export type Playlist = {
 };
 export type Notice = { id: string; body: string };
 export type Progress = { user_id: string; title_id: string; watched: number; status: string };
-export type SharedNote = { id: string; user_id: string; title_id: string; season: number; episode: number; body: string; feel: string[]; visible: boolean };
+export type PlComment = { id: string; user_id: string; title_id: string; season: number; episode: number; body: string; feel: string[]; visible_to: string[] | null; visible: boolean; created_at: string };
+export type PlReply = { id: string; comment_id: string; user_id: string; body: string; created_at: string };
 
 type Ctx = {
   playlists: Playlist[]; notices: Notice[]; error: string; reload: () => Promise<void>;
@@ -163,22 +164,54 @@ export function usePlaylists() {
   return c;
 }
 
-/** Progression des membres et commentaires débloqués d'une playlist partagée. */
+/** Progression des membres d'une playlist partagée (la course). */
 export function useShared(id: string, enabled: boolean, version: string) {
   const [progress, setProgress] = useState<Progress[]>([]);
-  const [notes, setNotes] = useState<SharedNote[]>([]);
   useEffect(() => {
-    if (!enabled) { setProgress([]); setNotes([]); return; }
+    if (!enabled) { setProgress([]); return; }
     let alive = true;
     (async () => {
-      const [p, n] = await Promise.all([supabase.rpc('playlist_progress', { pid: id }), supabase.rpc('playlist_notes', { pid: id })]);
-      if (!alive) return;
-      setProgress(p.error ? [] : ((p.data ?? []) as Progress[]));
-      setNotes(n.error ? [] : ((n.data ?? []) as SharedNote[]));
+      const p = await supabase.rpc('playlist_progress', { pid: id });
+      if (alive) setProgress(p.error ? [] : ((p.data ?? []) as Progress[]));
     })();
     return () => { alive = false; };
   }, [id, enabled, version]);
-  return { progress, notes };
+  return { progress };
+}
+
+/** Commentaires d'une playlist et réponses. Le texte des commentaires des autres reste vide tant que je n'ai pas atteint l'épisode. */
+export function usePlComments(pid: string, version: string) {
+  const [comments, setComments] = useState<PlComment[]>([]);
+  const [replies, setReplies] = useState<PlReply[]>([]);
+  const [error, setError] = useState('');
+  const [n, setN] = useState(0);
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      const [c, r] = await Promise.all([supabase.rpc('playlist_comments_for', { pid }), supabase.from('playlist_replies').select('*').order('created_at')]);
+      if (!alive) return;
+      if (c.error) { setError(msg(c.error)); setComments([]); setReplies([]); return; }
+      const list = (c.data ?? []) as PlComment[];
+      setComments(list); setError('');
+      const ids = new Set(list.map((x) => x.id));
+      setReplies(r.error ? [] : ((r.data ?? []) as PlReply[]).filter((x) => ids.has(x.comment_id)));
+    })();
+    return () => { alive = false; };
+  }, [pid, version, n]);
+  const refresh = () => setN((x) => x + 1);
+  const add = async (titleId: string, season: number, episode: number, body: string, feel: string[], visibleTo: string[] | null) => {
+    const { error: e } = await supabase.from('playlist_comments').insert({ playlist_id: pid, title_id: titleId, season, episode, body, feel, visible_to: visibleTo && visibleTo.length ? visibleTo : null });
+    if (e) { setError(msg(e)); return false; }
+    refresh(); return true;
+  };
+  const remove = async (id: string) => { setComments((l) => l.filter((x) => x.id !== id)); await supabase.from('playlist_comments').delete().eq('id', id); };
+  const reply = async (commentId: string, body: string) => {
+    const { error: e } = await supabase.from('playlist_replies').insert({ comment_id: commentId, body });
+    if (e) { setError(msg(e)); return false; }
+    refresh(); return true;
+  };
+  const removeReply = async (id: string) => { setReplies((l) => l.filter((x) => x.id !== id)); await supabase.from('playlist_replies').delete().eq('id', id); };
+  return { comments, replies, error, add, remove, reply, removeReply };
 }
 
 /** Temps restant (en minutes) pour un ensemble de titres, selon ma progression. */

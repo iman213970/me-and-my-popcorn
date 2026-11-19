@@ -3,9 +3,10 @@ import { Pressable, Text, View } from 'react-native';
 import type { Title } from '../lib/catalog';
 import { pos } from '../lib/calc';
 import { FEELINGS } from '../lib/options';
-import { useStore } from '../lib/store';
+import { useDraft } from '../lib/draft';
+import { useStore, type Visibility } from '../lib/store';
 import { C } from '../lib/theme';
-import { Btn, Field, Mu, Stepper } from './ui';
+import { Btn, Chip, Field, Mu, Stepper } from './ui';
 
 /** Choix d'emoji de ressenti : on touche pour activer ou désactiver, sans limite. */
 export function FeelPicker({ value, onChange }: { value: string[]; onChange: (v: string[]) => void }) {
@@ -36,7 +37,8 @@ export function Journal({ t, watched }: { t: Title; watched: number }) {
   const p = pos(t, watched);
   const [season, setSeason] = useState(Math.max(1, p.s));
   const [episode, setEpisode] = useState(Math.max(1, p.e));
-  const [body, setBody] = useState('');
+  const [body, setBody, clearBody] = useDraft(`journal:${t.id}`);
+  const [vis, setVis] = useState<Visibility>('Moi');
   const [feel, setFeel] = useState<string[]>([]);
   const [editId, setEditId] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -48,17 +50,17 @@ export function Journal({ t, watched }: { t: Title; watched: number }) {
     .sort((a, b) => a.season - b.season || a.episode - b.episode || a.created_at.localeCompare(b.created_at)), [notes, t.id]);
 
   const maxEp = (s: number) => t.eps[s - 1] ?? 1;
-  const reset = () => { setBody(''); setFeel([]); setEditId(null); };
+  const reset = () => { clearBody(); setFeel([]); setEditId(null); setVis('Moi'); };
   const save = async () => {
     if (!body.trim() && !feel.length) return;
     setBusy(true);
-    if (editId) await updateNote(editId, body.trim(), feel);
-    else await addNote(t.id, film ? 0 : season, film ? 0 : episode, body.trim(), feel);
+    if (editId) await updateNote(editId, body.trim(), feel, vis);
+    else await addNote(t.id, film ? 0 : season, film ? 0 : episode, body.trim(), feel, vis);
     setBusy(false); reset();
   };
   const edit = (id: string) => {
     const n = notes.find((x) => x.id === id); if (!n) return;
-    setEditId(id); setBody(n.body); setFeel(n.feel);
+    setEditId(id); setBody(n.body); setFeel(n.feel); setVis(n.vis ?? 'Moi');
     if (!film) { setSeason(n.season); setEpisode(n.episode); }
   };
 
@@ -77,6 +79,13 @@ export function Journal({ t, watched }: { t: Title; watched: number }) {
       <Field label={editId ? 'Modifier le commentaire' : film ? 'Nouveau commentaire' : `Commentaire pour la saison ${season}, épisode ${episode}`}
         value={body} onChangeText={setBody} multiline placeholder={film ? 'Ce que tu as pensé du film' : 'Ce que tu as pensé de cet épisode'} />
       <FeelPicker value={feel} onChange={setFeel} />
+      <View style={{ gap: 6 }}>
+        <Mu size={12}>Qui voit ce commentaire</Mu>
+        <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap' }}>
+          {(['Moi', 'Amis', 'Public'] as Visibility[]).map((v) => <Chip key={v} label={v === 'Moi' ? 'Moi seul' : v} small on={vis === v} onPress={() => setVis(v)} />)}
+        </View>
+        <Mu size={12}>{vis === 'Moi' ? 'Privé : personne d\'autre ne le voit.' : 'Tes proches le voient dans ton profil, une fois qu\'ils ont vu cet épisode ou ce film.'}</Mu>
+      </View>
       <View style={{ flexDirection: 'row', gap: 10 }}>
         {editId ? <View style={{ flex: 1 }}><Btn label="Annuler" kind="alt" onPress={reset} /></View> : null}
         <View style={{ flex: 1 }}><Btn label={editId ? 'Enregistrer' : 'Ajouter le commentaire'} onPress={save} disabled={busy} /></View>
@@ -88,7 +97,7 @@ export function Journal({ t, watched }: { t: Title; watched: number }) {
             <View key={n.id} style={{ backgroundColor: C.sf2, borderRadius: 22, padding: 14, gap: 6 }}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                 <Text style={{ color: C.ac, fontWeight: '700', fontSize: 13 }}>{film ? 'Film' : `S${n.season} · E${n.episode}`}</Text>
-                <Mu size={12}>{new Date(n.created_at).toLocaleDateString('fr-FR')}</Mu>
+                <Mu size={12}>{(n.vis ?? 'Moi') === 'Moi' ? '🔒 Privé' : `👥 ${n.vis}`} · {new Date(n.created_at).toLocaleDateString('fr-FR')}</Mu>
               </View>
               {n.feel.length ? <Text style={{ fontSize: 20 }}>{n.feel.join(' ')}</Text> : null}
               {n.body ? <Text style={{ color: C.tx, fontSize: 15, lineHeight: 21 }}>{n.body}</Text> : null}

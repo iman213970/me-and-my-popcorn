@@ -10,7 +10,7 @@ import { Sheet } from '../../components/Sheet';
 import { Avatar, Bar, Btn, Empty, Field, Mu, Poster } from '../../components/ui';
 import { fmtLong, pos, total } from '../../lib/calc';
 import { loadLinks, type Link } from '../../lib/friends';
-import { remainingMin, usePlaylists, useShared } from '../../lib/playlists';
+import { remainingMin, usePlaylists, usePlComments, useShared } from '../../lib/playlists';
 import { BY, useStore } from '../../lib/store';
 import { C, FONT_DISPLAY, FONT_DISPLAY_SEMI, SHADOW_SOFT, SIG } from '../../lib/theme';
 
@@ -32,7 +32,9 @@ export default function PlaylistPage() {
   useFocusEffect(useCallback(() => { void reload().then(() => setTick((t) => t + 1)); }, [reload]));
 
   const items = useMemo(() => (pl ? pl.items.filter((x) => BY[x]) : []), [pl]);
-  const { progress, notes } = useShared(pid, !!pl?.shared, `${tick}:${items.join(',')}:${items.map((x) => state.list[x]?.watched ?? 0).join(',')}`);
+  const { progress } = useShared(pid, !!pl?.shared, `${tick}:${items.join(',')}:${items.map((x) => state.list[x]?.watched ?? 0).join(',')}`);
+
+  const { comments } = usePlComments(pid, `${tick}:${items.join(',')}`);
 
   if (!pl) {
     return (
@@ -114,13 +116,12 @@ export default function PlaylistPage() {
             const lows = pl.shared ? pl.members.map((m) => watchedOf(m.id, t)) : [mine];
             const both = pl.shared ? Math.min(...lows) : 0;
             const allDone = pl.shared && lows.every((w) => w >= tt);
-            const tn = notes.filter((n) => n.title_id === t);
-            const open = tn.filter((n) => n.visible), locked = tn.length - open.length;
-            const who = (u: string) => pl.members.find((m) => m.id === u)?.pseudo ?? '';
+            const tn = comments.filter((n) => n.title_id === t);
+            const open = tn.filter((n) => n.visible).length, locked = tn.length - open;
             return (
               <View key={t} style={{ backgroundColor: C.sf, borderRadius: 26, padding: 12, gap: 10, borderWidth: 1, borderColor: C.line, boxShadow: SHADOW_SOFT }}>
                 <View style={{ flexDirection: 'row', gap: 12 }}>
-                  <Press onPress={() => router.push(`/titre/${t}`)} accessibilityRole="button" accessibilityLabel={`Ouvrir ${title.title}`} style={{ width: 64 }}><Poster t={title} w={64} rounded={14} /></Press>
+                  <Press onPress={() => router.push({ pathname: '/ptitre', params: { pid: pl.id, t } })} accessibilityRole="button" accessibilityLabel={`Ouvrir ${title.title} dans la playlist`} style={{ width: 64 }}><Poster t={title} w={64} rounded={14} /></Press>
                   <View style={{ flex: 1, minWidth: 0 }}>
                     <Text numberOfLines={2} style={{ color: C.tx, fontWeight: '700', fontSize: 15 }}>{title.title}</Text>
                     <Mu size={12}>{film ? `Film · ${title.dur} min` : `S${pos(title, mine).s} · ép. ${pos(title, mine).e} sur ${tt}`}</Mu>
@@ -144,16 +145,11 @@ export default function PlaylistPage() {
                     <Text style={{ color: C.gold, fontSize: 11, fontWeight: '700' }}>{allDone ? '★ Terminé ensemble' : film ? '★ Vu par vous tous' : `★ ${both} épisode${both > 1 ? 's' : ''} vus par vous tous`}</Text>
                   </View>
                 ) : null}
-                {open.slice(-2).map((n) => (
-                  <View key={n.id} style={{ borderRadius: 14, padding: 9, backgroundColor: 'rgba(155,123,255,0.12)', borderWidth: 1, borderColor: 'rgba(155,123,255,0.3)' }}>
-                    <Text style={{ color: '#E8E1FF', fontSize: 12, lineHeight: 17 }}>💬 <Text style={{ fontWeight: '700' }}>{who(n.user_id)}</Text>{n.season ? ` à l'ép. ${n.episode}` : ''} : « {n.body || (n.feel ?? []).join(' ')} »</Text>
-                  </View>
-                ))}
-                {locked > 0 ? (
-                  <View style={{ borderRadius: 14, padding: 9, borderWidth: 1, borderStyle: 'dashed', borderColor: '#4A4A6A' }}>
-                    <Text style={{ color: C.mu, fontSize: 12, lineHeight: 17 }}>🔒 {locked} commentaire{locked > 1 ? 's' : ''} {locked > 1 ? 'se débloquent' : 's’ouvre'} {film ? 'quand tu as vu le film' : 'quand tu arrives à cet épisode'}</Text>
-                  </View>
-                ) : null}
+                <Press onPress={() => router.push({ pathname: '/ptitre', params: { pid: pl.id, t } })} accessibilityRole="button" accessibilityLabel={`Commentaires sur ${title.title}`}
+                  style={{ flexDirection: 'row', alignItems: 'center', gap: 8, borderRadius: 16, padding: 10, backgroundColor: 'rgba(155,123,255,0.12)', borderWidth: 1, borderColor: 'rgba(155,123,255,0.3)' }}>
+                  <Text style={{ flex: 1, color: '#E8E1FF', fontSize: 13 }}>💬 {open} commentaire{open > 1 ? 's' : ''}{locked > 0 ? `  ·  🔒 ${locked} à débloquer` : ''}</Text>
+                  <Ionicons name="chevron-forward" size={18} color={C.mu} />
+                </Press>
               </View>
             );
           }) : <Empty art="ticket" title="Playlist vide">Ajoute des séries et des films de ta liste.</Empty>}
