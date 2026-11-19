@@ -19,6 +19,7 @@ function Routes() {
         <Stack.Screen name="ami/[id]" />
         <Stack.Screen name="playlist/[id]" />
         <Stack.Screen name="ptitre" />
+        <Stack.Screen name="messages/[id]" />
       </Stack.Protected>
       <Stack.Protected guard={!session}>
         <Stack.Screen name="connexion" />

@@ -5,6 +5,7 @@ import React, { useState } from 'react';
 import { Image, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { FeelPicker, Journal } from '../../components/Journal';
+import { RecommendSheet } from '../../components/RecommendSheet';
 import { Similar } from '../../components/Similar';
 import { Bar, Btn, Card, Chip, Chips, Field, H1, H2, Kv, Mu, Poster, Stepper, Switch } from '../../components/ui';
 import { cum, fmtDateInput, fmtDur, fmtH, pos, todayFr, total } from '../../lib/calc';
@@ -16,6 +17,7 @@ import { PLATFORMS } from '../../lib/options';
 export default function Fiche() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { state, add, remove, patch, setWatched, patchPrefs } = useStore();
+  const [reco, setReco] = useState(false);
   const [confirm, setConfirm] = useState(false);
   const [newPlat, setNewPlat] = useState<string | null>(null);
   const t = BY[String(id)];
@@ -194,6 +196,8 @@ export default function Fiche() {
               </>
             );
           })()}
+          <Btn label="Conseiller à un proche" kind="alt" icon="paper-plane-outline" onPress={() => setReco(true)} />
+          <RecommendSheet open={reco} onClose={() => setReco(false)} titleId={t.id} />
           <Similar id={t.id} />
         </View>
       </ScrollView>

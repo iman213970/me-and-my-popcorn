@@ -6,6 +6,9 @@ import { Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { FeelPicker } from '../components/Journal';
 import { Press } from '../components/fx';
+import { MediaView } from '../components/MediaView';
+import { MediaAttach } from '../components/Recorder';
+import type { Media } from '../lib/media';
 import { Avatar, Btn, Chip, Empty, Field, Mu, Poster, Stepper } from '../components/ui';
 import { pos, total } from '../lib/calc';
 import { useDraft } from '../lib/draft';
@@ -39,6 +42,8 @@ export default function PlaylistTitle() {
   const [busy, setBusy] = useState(false);
   const [replyTo, setReplyTo] = useState<string | null>(null);
   const [replyText, setReplyText] = useState('');
+  const [media, setMedia] = useState<Media | null>(null);
+  const [replyMedia, setReplyMedia] = useState<Media | null>(null);
 
   if (!pl || !title) {
     return (
@@ -57,15 +62,15 @@ export default function PlaylistTitle() {
   const mine = comments.filter((c) => c.title_id === titleId);
 
   const send = async () => {
-    if (!body.trim() && !feel.length) return;
+    if (!body.trim() && !feel.length && !media) return;
     setBusy(true);
-    const ok = await add(titleId, film ? 0 : season, film ? 0 : episode, body.trim(), feel, who.length === others.length ? null : who);
+    const ok = await add(titleId, film ? 0 : season, film ? 0 : episode, body.trim(), feel, who.length === others.length ? null : who, media);
     setBusy(false);
-    if (ok) { clearBody(); setFeel([]); }
+    if (ok) { clearBody(); setFeel([]); setMedia(null); }
   };
   const sendReply = async (c: PlComment) => {
-    if (!replyText.trim()) return;
-    if (await reply(c.id, replyText.trim())) { setReplyText(''); setReplyTo(null); }
+    if (!replyText.trim() && !replyMedia) return;
+    if (await reply(c.id, replyText.trim(), replyMedia)) { setReplyText(''); setReplyTo(null); setReplyMedia(null); }
   };
   const where = (c: PlComment) => (c.season ? `Saison ${c.season} · épisode ${c.episode}` : 'Film');
   const toWho = (c: PlComment) => (!c.visible_to || !c.visible_to.length ? 'Tous les membres' : c.visible_to.map(name).join(', '));
@@ -123,6 +128,7 @@ export default function PlaylistTitle() {
                   <>
                     {c.feel?.length ? <Text style={{ fontSize: 20 }}>{c.feel.join(' ')}</Text> : null}
                     {c.body ? <Text style={{ color: C.tx, fontSize: 15, lineHeight: 21 }}>{c.body}</Text> : null}
+                    {c.media_kind ? <MediaView path={c.media_path} kind={c.media_kind} secs={c.media_secs} expires={c.expires_at} /> : null}
                   </>
                 ) : (
                   <View style={{ borderRadius: 16, padding: 12, borderWidth: 1, borderStyle: 'dashed', borderColor: '#4A4A6A' }}>
@@ -134,15 +140,19 @@ export default function PlaylistTitle() {
                     {rs.map((r) => (
                       <View key={r.id} style={{ flexDirection: 'row', gap: 8, alignItems: 'flex-start', backgroundColor: C.sf2, borderRadius: 16, padding: 10 }}>
                         <Avatar i={av(r.user_id)} size={26} />
-                        <Text style={{ flex: 1, color: C.tx, fontSize: 13, lineHeight: 18 }}><Text style={{ fontWeight: '700' }}>{r.user_id === me ? 'Toi' : name(r.user_id)}</Text>  {r.body}</Text>
+                        <View style={{ flex: 1, gap: 6 }}>
+                          <Text style={{ color: C.tx, fontSize: 13, lineHeight: 18 }}><Text style={{ fontWeight: '700' }}>{r.user_id === me ? 'Toi' : name(r.user_id)}</Text>  {r.body}</Text>
+                          {r.media_kind ? <MediaView path={r.media_path} kind={r.media_kind} secs={r.media_secs} expires={r.expires_at} /> : null}
+                        </View>
                         {r.user_id === me ? <Pressable onPress={() => removeReply(r.id)} accessibilityRole="button" accessibilityLabel="Supprimer ma réponse"><Ionicons name="close" size={16} color={C.mu} /></Pressable> : null}
                       </View>
                     ))}
                     {replyTo === c.id ? (
                       <View style={{ gap: 8 }}>
                         <Field label="Ta réponse" value={replyText} onChangeText={setReplyText} multiline />
+                        <MediaAttach value={replyMedia} onChange={setReplyMedia} />
                         <View style={{ flexDirection: 'row', gap: 10 }}>
-                          <View style={{ flex: 1 }}><Btn label="Annuler" kind="alt" onPress={() => { setReplyTo(null); setReplyText(''); }} /></View>
+                          <View style={{ flex: 1 }}><Btn label="Annuler" kind="alt" onPress={() => { setReplyTo(null); setReplyText(''); setReplyMedia(null); }} /></View>
                           <View style={{ flex: 1 }}><Btn label="Répondre" onPress={() => sendReply(c)} /></View>
                         </View>
                       </View>
@@ -165,6 +175,7 @@ export default function PlaylistTitle() {
             ) : null}
             <Field label={film ? 'Ton commentaire sur le film' : `Commentaire pour la saison ${season}, épisode ${episode}`} value={body} onChangeText={setBody} multiline placeholder="Ce que tu en as pensé" />
             <FeelPicker value={feel} onChange={setFeel} />
+            <MediaAttach value={media} onChange={setMedia} />
             {others.length ? (
               <View style={{ gap: 6 }}>
                 <Mu size={12}>Visible par</Mu>

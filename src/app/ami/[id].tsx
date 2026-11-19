@@ -67,6 +67,7 @@ export default function Ami() {
                 <Avatar i={person.avatar} size={72} />
                 <View style={{ flex: 1, gap: 4 }}><H1>{person.pseudo || 'Sans pseudo'}</H1>{person.bio ? <Mu>{person.bio}</Mu> : null}</View>
               </View>
+              <Btn label="Envoyer un message" icon="chatbubble-ellipses-outline" onPress={() => router.push(`/messages/${id}`)} />
               <View style={{ flexDirection: 'row', gap: 10 }}>
                 <View style={{ flex: 1, backgroundColor: C.sf, borderRadius: 28, padding: 16, gap: 6 }}><Mu size={12}>Temps regardé</Mu><Text style={{ color: C.tx, fontSize: 18, fontWeight: '700' }}>{fmtLong(seen)}</Text></View>
                 <View style={{ flex: 1, backgroundColor: C.sf, borderRadius: 28, padding: 16, gap: 6 }}><Mu size={12}>Titres</Mu><Text style={{ color: C.tx, fontSize: 28, fontWeight: '700' }}>{all.length}</Text></View>

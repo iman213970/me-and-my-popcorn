@@ -1,8 +1,9 @@
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { Avatar, Btn, Card, Field, H1, H2, Mu, Screen } from '../../components/ui';
 import { acceptRequest, findPeople, loadLinks, removeLink, sendRequest, type Link, type Person } from '../../lib/friends';
+import { unreadCounts } from '../../lib/messages';
 import { useStore } from '../../lib/store';
 import { C } from '../../lib/theme';
 
@@ -14,12 +15,14 @@ export default function Amis() {
   const [found, setFound] = useState<Person[] | null>(null);
   const [msg, setMsg] = useState('');
   const [busy, setBusy] = useState(false);
+  const [unread, setUnread] = useState<Record<string, number>>({});
 
   const reload = useCallback(async () => {
     if (!me) return;
     try { setLinks(await loadLinks(me)); setMsg(''); } catch (e) { setMsg(e instanceof Error ? e.message : 'Erreur'); }
   }, [me]);
   useEffect(() => { void reload(); }, [reload]);
+  useFocusEffect(useCallback(() => { if (me) unreadCounts(me).then(setUnread).catch(() => undefined); }, [me]));
 
   const run = async (fn: () => Promise<void>) => {
     setBusy(true);
@@ -71,7 +74,13 @@ export default function Amis() {
         {friends.length ? friends.map((l) => (
           <Pressable key={l.id} onPress={() => router.push(`/ami/${l.other.id}`)} accessibilityRole="button" accessibilityLabel={`Voir le profil de ${l.other.pseudo}`}
             style={{ minHeight: 56, justifyContent: 'center' }}>
-            <Row p={l.other}><Text style={{ color: C.mu, fontSize: 22 }}>›</Text></Row>
+            <Row p={l.other}>
+              <Pressable onPress={() => router.push(`/messages/${l.other.id}`)} accessibilityRole="button" accessibilityLabel={`Écrire à ${l.other.pseudo}`} style={{ minWidth: 44, height: 44, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 4 }}>
+                <Text style={{ fontSize: 22 }}>💬</Text>
+                {unread[l.other.id] ? <View style={{ minWidth: 20, height: 20, borderRadius: 10, backgroundColor: C.pink, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 5 }}><Text style={{ color: '#fff', fontSize: 11, fontWeight: '800' }}>{unread[l.other.id]}</Text></View> : null}
+              </Pressable>
+              <Text style={{ color: C.mu, fontSize: 22 }}>›</Text>
+            </Row>
           </Pressable>
         )) : <Mu>Personne pour l'instant. Ajoute un frère ou une sœur ci-dessous.</Mu>}
       </Card>

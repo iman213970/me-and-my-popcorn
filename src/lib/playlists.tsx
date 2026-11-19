@@ -2,6 +2,7 @@ import React, { createContext, useCallback, useContext, useEffect, useMemo, useS
 import { BY, useStore } from './store';
 import { total } from './calc';
 import { supabase } from './supabase';
+import { cleanupExpired, type Media } from './media';
 
 export type Member = { id: string; pseudo: string; avatar: number; canEdit: boolean };
 export type Playlist = {
@@ -10,8 +11,8 @@ export type Playlist = {
 };
 export type Notice = { id: string; body: string };
 export type Progress = { user_id: string; title_id: string; watched: number; status: string };
-export type PlComment = { id: string; user_id: string; title_id: string; season: number; episode: number; body: string; feel: string[]; visible_to: string[] | null; visible: boolean; created_at: string };
-export type PlReply = { id: string; comment_id: string; user_id: string; body: string; created_at: string };
+export type PlComment = { id: string; user_id: string; title_id: string; season: number; episode: number; body: string; feel: string[]; visible_to: string[] | null; visible: boolean; created_at: string; media_path?: string | null; media_kind?: string | null; media_secs?: number | null; expires_at?: string | null };
+export type PlReply = { id: string; comment_id: string; user_id: string; body: string; created_at: string; media_path?: string | null; media_kind?: string | null; media_secs?: number | null; expires_at?: string | null };
 
 type Ctx = {
   playlists: Playlist[]; notices: Notice[]; error: string; reload: () => Promise<void>;
@@ -76,6 +77,7 @@ export function PlaylistsProvider({ children }: { children: React.ReactNode }) {
   }, [uid]);
 
   useEffect(() => { void reload(); }, [reload]);
+  useEffect(() => { if (uid) void cleanupExpired(); }, [uid]);
 
   const patchLocal = (id: string, f: (p: Playlist) => Playlist) => setPlaylists((l) => l.map((p) => (p.id === id ? f(p) : p)));
   const run = async (q: PromiseLike<{ error: unknown }>) => { const r = await q; if (r.error) { setError(msg(r.error)); await reload(); } };
@@ -199,14 +201,16 @@ export function usePlComments(pid: string, version: string) {
     return () => { alive = false; };
   }, [pid, version, n]);
   const refresh = () => setN((x) => x + 1);
-  const add = async (titleId: string, season: number, episode: number, body: string, feel: string[], visibleTo: string[] | null) => {
-    const { error: e } = await supabase.from('playlist_comments').insert({ playlist_id: pid, title_id: titleId, season, episode, body, feel, visible_to: visibleTo && visibleTo.length ? visibleTo : null });
+  const add = async (titleId: string, season: number, episode: number, body: string, feel: string[], visibleTo: string[] | null, media?: Media | null) => {
+    const { error: e } = await supabase.from('playlist_comments').insert({ playlist_id: pid, title_id: titleId, season, episode, body, feel, visible_to: visibleTo && visibleTo.length ? visibleTo : null,
+      ...(media ? { media_path: media.path, media_kind: media.kind, media_secs: media.secs } : {}) });
     if (e) { setError(msg(e)); return false; }
     refresh(); return true;
   };
   const remove = async (id: string) => { setComments((l) => l.filter((x) => x.id !== id)); await supabase.from('playlist_comments').delete().eq('id', id); };
-  const reply = async (commentId: string, body: string) => {
-    const { error: e } = await supabase.from('playlist_replies').insert({ comment_id: commentId, body });
+  const reply = async (commentId: string, body: string, media?: Media | null) => {
+    const { error: e } = await supabase.from('playlist_replies').insert({ comment_id: commentId, body,
+      ...(media ? { media_path: media.path, media_kind: media.kind, media_secs: media.secs } : {}) });
     if (e) { setError(msg(e)); return false; }
     refresh(); return true;
   };
